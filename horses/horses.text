@@ -1,0 +1,655 @@
+          .PAGE
+;
+;----------------------------------------------------------------------
+;
+;    "Horse Demo"  Invokable Module for Business Basic
+;
+;           by Andy Hertzfeld  09/04/80
+;
+;----------------------------------------------------------------------
+;
+           .PROC   HINIT
+           .REF    WDEVNUM       ;in HFRAME procedure
+;
+; Load text screen with the character codes for the horses
+; and load the foreground/background colors.
+;
+;
+; First get the device number of the console
+;
+           BRK                   ;GET_DEV_NUM
+           .BYTE   084           ;GETDEVNUM SOS call
+           .WORD   DEVBLOCK
+;
+           LDA     CDEVNUM
+           STA     WDEVNUM       ;Update the device number for later
+;
+           LDY     #00
+LOOP       LDA     SCRNDAT1,Y
+           STA     0400,Y
+           LDA     SCRNDAT2,Y
+           STA     0500,Y
+           LDA     SCRNDAT3,Y
+           STA     0600,Y
+           LDA     SCRNDAT4,Y
+           STA     0700,Y
+           LDA     SCRNDAT5,Y
+           STA     0800,Y
+           LDA     SCRNDAT6,Y
+           STA     0900,Y
+           LDA     SCRNDAT7,Y
+           STA     0A00,Y
+           LDA     SCRNDAT8,Y
+           STA     0B00,Y
+           INY
+           BNE     LOOP
+           RTS
+
+; 
+; Text screen data
+; first 32 character codes are used for the horses 
+; MSB bit is set for inverse?
+;
+; 8 chars x 4 lines per horse
+; eg
+; 080,081,082,083,084,085,086,087   ;Line2
+; 088,089,08A,08B,08C,08D,08E,08F   ;Line3
+; 090,091,092,093,094,095,096,097   ;Line4
+; 098,099,09A,09B,09C,09D,09E,09F   ;Line5
+;
+; 
+;
+SCRNDAT1   .BYTE   000,000,000,000,000,000,000,000   ;Line1
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F   ;Line9
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F   ;Line17
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   080,081,082,083,084,085,086,087   ;Line2
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   090,091,092,093,094,095,096,097   ;Line10
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0   ;Line18
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   000,000,000,000,000,000,000,000
+
+SCRNDAT2   .BYTE   088,089,08A,08B,08C,08D,08E,08F   ;Line3
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F   ;Line11
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   000,000,000,000,000,000,000,000   ;Line19
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   090,091,092,093,094,095,096,097   ;Line4
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0   ;Line12
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   080,081,082,083,084,085,086,087   ;Line20
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   000,000,000,000,000,000,000,000
+
+SCRNDAT3   .BYTE   098,099,09A,09B,09C,09D,09E,09F   ;Line5
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   000,000,000,000,000,000,000,000   ;Line13
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F   ;Line21
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0   ;Line6
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   080,081,082,083,084,085,086,087   ;Line14
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   090,091,092,093,094,095,096,097   ;Line22
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   000,000,000,000,000,000,000,000
+
+SCRNDAT4   .BYTE   000,000,000,000,000,000,000,000   ;Line7
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F   ;Line15
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   088,089,08A,08B,08C,08D,08E,08F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F   ;Line23
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   098,099,09A,09B,09C,09D,09E,09F
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   080,081,082,083,084,085,086,087   ;Line8
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   080,081,082,083,084,085,086,087
+           .BYTE   090,091,092,093,094,095,096,097   ;Line16
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   090,091,092,093,094,095,096,097
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0   ;Line24
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   0A0,0A0,0A0,0A0,0A0,0A0,0A0,0A0
+           .BYTE   000,000,000,000,000,000,000,000
+; 
+; Text foreground/background color data
+; 
+SCRNDAT5   .BYTE   0EE,0EE,0EE,0EE,0EE,0EE,0EE,0EE   ;Line1
+           .BYTE   0DD,0DD,0DD,0DD,0DD,0DD,0DD,0DD
+           .BYTE   0CC,0CC,0CC,0CC,0CC,0CC,0CC,0CC
+           .BYTE   0BB,0BB,0BB,0BB,0BB,0BB,0BB,0BB
+           .BYTE   0EE,0EE,0EE,0EE,0EE,0EE,0EE,0EE
+           .BYTE   040,040,040,040,040,040,040,040   ;Line9
+           .BYTE   03D,03D,03D,03D,03D,03D,03D,03D
+           .BYTE   07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   06A,06A,06A,06A,06A,06A,06A,06A
+           .BYTE   0D5,0D5,0D5,0D5,0D5,0D5,0D5,0D5
+           .BYTE   0E4,0E4,0E4,0E4,0E4,0E4,0E4,0E4   ;Line17
+           .BYTE   09A,09A,09A,09A,09A,09A,09A,09A
+           .BYTE   0D2,0D2,0D2,0D2,0D2,0D2,0D2,0D2
+           .BYTE   038,038,038,038,038,038,038,038
+           .BYTE   014,014,014,014,014,014,014,014
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   0E1,0E1,0E1,0E1,0E1,0E1,0E1,0E1   ;Line2
+           .BYTE   0D2,0D2,0D2,0D2,0D2,0D2,0D2,0D2
+           .BYTE   0C3,0C3,0C3,0C3,0C3,0C3,0C3,0C3
+           .BYTE   0B4,0B4,0B4,0B4,0B4,0B4,0B4,0B4
+           .BYTE   0E2,0E2,0E2,0E2,0E2,0E2,0E2,0E2
+           .BYTE   040,040,040,040,040,040,040,040   ;Line10
+           .BYTE   03D,03D,03D,03D,03D,03D,03D,03D
+           .BYTE   07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   06A,06A,06A,06A,06A,06A,06A,06A
+           .BYTE   0D5,0D5,0D5,0D5,0D5,0D5,0D5,0D5
+           .BYTE   000,000,000,000,000,000,000,000   ;Line18
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+                                                  
+SCRNDAT6   .BYTE   0E1,0E1,0E1,0E1,0E1,0E1,0E1,0E1   ;Line3
+           .BYTE   0D2,0D2,0D2,0D2,0D2,0D2,0D2,0D2
+           .BYTE   0C3,0C3,0C3,0C3,0C3,0C3,0C3,0C3
+           .BYTE   0B4,0B4,0B4,0B4,0B4,0B4,0B4,0B4
+           .BYTE   0E2,0E2,0E2,0E2,0E2,0E2,0E2,0E2
+           .BYTE   040,040,040,040,040,040,040,040   ;Line11
+           .BYTE   03D,03D,03D,03D,03D,03D,03D,03D
+           .BYTE   07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   06A,06A,06A,06A,06A,06A,06A,06A
+           .BYTE   0D5,0D5,0D5,0D5,0D5,0D5,0D5,0D5
+           .BYTE   099,099,099,099,099,099,099,099   ;Line19
+           .BYTE   044,044,044,044,044,044,044,044
+           .BYTE   0CC,0CC,0CC,0CC,0CC,0CC,0CC,0CC
+           .BYTE   022,022,022,022,022,022,022,022
+           .BYTE   011,011,011,011,011,011,011,011
+           .BYTE   011,011,011,011,011,011,011,011
+           .BYTE   0E1,0E1,0E1,0E1,0E1,0E1,0E1,0E1   ;Line4
+           .BYTE   0D2,0D2,0D2,0D2,0D2,0D2,0D2,0D2
+           .BYTE   0C3,0C3,0C3,0C3,0C3,0C3,0C3,0C3
+           .BYTE   0B4,0B4,0B4,0B4,0B4,0B4,0B4,0B4
+           .BYTE   0E2,0E2,0E2,0E2,0E2,0E2,0E2,0E2
+           .BYTE   000,000,000,000,000,000,000,000   ;Line12
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   092,092,092,092,092,092,092,092   ;Line20
+           .BYTE   043,043,043,043,043,043,043,043
+           .BYTE   0C2,0C2,0C2,0C2,0C2,0C2,0C2,0C2
+           .BYTE   02D,02D,02D,02D,02D,02D,02D,02D
+           .BYTE   01F,01F,01F,01F,01F,01F,01F,01F
+           .BYTE   000,000,000,000,000,000,000,000
+                                                  
+SCRNDAT7   .BYTE   0E1,0E1,0E1,0E1,0E1,0E1,0E1,0E1   ;Line5
+           .BYTE   0D2,0D2,0D2,0D2,0D2,0D2,0D2,0D2
+           .BYTE   0C3,0C3,0C3,0C3,0C3,0C3,0C3,0C3
+           .BYTE   0B4,0B4,0B4,0B4,0B4,0B4,0B4,0B4
+           .BYTE   0E2,0E2,0E2,0E2,0E2,0E2,0E2,0E2
+           .BYTE   0EE,0EE,0EE,0EE,0EE,0EE,0EE,0EE   ;Line13
+           .BYTE   099,099,099,099,099,099,099,099
+           .BYTE   0DD,0DD,0DD,0DD,0DD,0DD,0DD,0DD
+           .BYTE   033,033,033,033,033,033,033,033
+           .BYTE   011,011,011,011,011,011,011,011
+           .BYTE   092,092,092,092,092,092,092,092   ;Line21
+           .BYTE   043,043,043,043,043,043,043,043
+           .BYTE   0C2,0C2,0C2,0C2,0C2,0C2,0C2,0C2
+           .BYTE   02D,02D,02D,02D,02D,02D,02D,02D
+           .BYTE   01F,01F,01F,01F,01F,01F,01F,01F
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000   ;Line6
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   0E4,0E4,0E4,0E4,0E4,0E4,0E4,0E4   ;Line14
+           .BYTE   09A,09A,09A,09A,09A,09A,09A,09A
+           .BYTE   0D2,0D2,0D2,0D2,0D2,0D2,0D2,0D2
+           .BYTE   038,038,038,038,038,038,038,038
+           .BYTE   014,014,014,014,014,014,014,014
+           .BYTE   092,092,092,092,092,092,092,092   ;Line22
+           .BYTE   043,043,043,043,043,043,043,043
+           .BYTE   0C2,0C2,0C2,0C2,0C2,0C2,0C2,0C2
+           .BYTE   02D,02D,02D,02D,02D,02D,02D,02D
+           .BYTE   01F,01F,01F,01F,01F,01F,01F,01F
+           .BYTE   000,000,000,000,000,000,000,000
+                                                  
+SCRNDAT8   .BYTE   044,044,044,044,044,044,044,044   ;Line7
+           .BYTE   033,033,033,033,033,033,033,033
+           .BYTE   077,077,077,077,077,077,077,077
+           .BYTE   066,066,066,066,066,066,066,066
+           .BYTE   0DD,0DD,0DD,0DD,0DD,0DD,0DD,0DD
+           .BYTE   0E4,0E4,0E4,0E4,0E4,0E4,0E4,0E4   ;Line15
+           .BYTE   09A,09A,09A,09A,09A,09A,09A,09A
+           .BYTE   0D2,0D2,0D2,0D2,0D2,0D2,0D2,0D2
+           .BYTE   038,038,038,038,038,038,038,038
+           .BYTE   014,014,014,014,014,014,014,014
+           .BYTE   092,092,092,092,092,092,092,092   ;Line23
+           .BYTE   043,043,043,043,043,043,043,043
+           .BYTE   0C2,0C2,0C2,0C2,0C2,0C2,0C2,0C2
+           .BYTE   02D,02D,02D,02D,02D,02D,02D,02D
+           .BYTE   01F,01F,01F,01F,01F,01F,01F,01F
+           .BYTE   066,077,077,077,077,077,077,077
+           .BYTE   040,040,040,040,040,040,040,040   ;Line8
+           .BYTE   03D,03D,03D,03D,03D,03D,03D,03D
+           .BYTE   07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   06A,06A,06A,06A,06A,06A,06A,06A
+           .BYTE   0D5,0D5,0D5,0D5,0D5,0D5,0D5,0D5
+           .BYTE   0E4,0E4,0E4,0E4,0E4,0E4,0E4,0E4   ;Line16
+           .BYTE   09A,09A,09A,09A,09A,09A,09A,09A
+           .BYTE   0D2,0D2,0D2,0D2,0D2,0D2,0D2,0D2
+           .BYTE   038,038,038,038,038,038,038,038
+           .BYTE   014,014,014,014,014,014,014,014
+           .BYTE   000,000,000,000,000,000,000,000   ;Line24
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000
+; 
+; PARAMS FOR SOS GET_DEV_NUM CALL
+DEVBLOCK   .BYTE   02            ;2 parameters
+           .WORD   DEVNAME       ;pointer to dev name
+CDEVNUM    .BYTE   00
+DEVNAME    .BYTE   08
+           .ASCII  ".CONSOLE"
+; 
+; 
+;----------------------------------------------------------------------
+;         
+           .PROC   HFRAME,1
+           .DEF    WDEVNUM
+;
+; Update the character font data based on the frame number
+; passed into the procedure
+;
+           
+PTR        .EQU    0E8
+
+           PLA                   ;save return address
+           STA     RETRNADR
+           PLA
+           STA     RETRNADR+1
+           PLA                   ;get frame number
+           ASL     A             ;x2
+           TAY
+           LDA     FRAMETAB,Y
+           CLC
+           ADC     FRAMEADR      ;add lsb of base address of frame data
+           STA     PTR
+           LDA     FRAMETAB+1,Y
+           ADC     FRAMEADR+1    ;add msb of base address of frame data
+           STA     PTR+1
+           LDA     #00           ;disable extended addressing
+           STA     016E9
+           PLA
+           LDY     #00
+           LDA     (PTR),Y
+           STA     CHRINFRM      ;number of characters in this frame
+           JSR     INCPTR        ;increment pointer
+NEXTLOT    LDA     #00
+           STA     NUMCHARS
+NEXTCHAR   JSR     COPYDATA      ;copy font data for this character
+           DEC     CHRINFRM      ;decrement count for chars in frame
+           BMI     DONE          ;branch if we are done all
+           INC     NUMCHARS
+           LDA     NUMCHARS
+           CMP     #08
+           BCC     NEXTCHAR
+           JSR     LOADCHRS      ;load eight characters
+           JMP     NEXTLOT       ;do remaining characters
+
+DONE       JSR     LOADCHRS      ;load characters
+           LDA     RETRNADR+1    ;restore return address on stack
+           PHA
+           LDA     RETRNADR
+           PHA
+           RTS                   ;and return
+;
+; increment pointer
+;
+INCPTR     INC     PTR
+           BNE     MSBOK
+           INC     PTR+1
+MSBOK      RTS
+;
+; Load character font data using .CONSOLE
+;
+LOADCHRS   LDA     NUMCHARS      ;number of chars to load
+           STA     CTRLLIST      ;store in sos call param list
+           BRK                   ;char load
+           .BYTE   083           ;D_CONTROL SOS call
+           .WORD   DEVBLK2
+           RTS
+
+COPYDATA   LDY     NUMCHARS
+           LDX     CHARTAB,Y
+           LDA     #09           ;8 ROWS (COUNT + ONE)
+           STA     ROW
+           LDY     #00
+NEXTROW    LDA     (PTR),Y
+           STA     CTRLLIST,X
+           INX
+           JSR     INCPTR        ;Increment pointer
+           DEC     ROW
+           BNE     NEXTROW
+           RTS
+;
+; Offset into console character loading table
+;
+CHARTAB    .BYTE   001
+           .BYTE   00A
+           .BYTE   013
+           .BYTE   01C
+           .BYTE   025
+           .BYTE   02E
+           .BYTE   037
+           .BYTE   040
+           .BYTE   049
+; 
+; Frames
+; 
+FRAMES     .BYTE   05           ;Number of frames?
+; 
+; Offset for each frame start
+; 
+FRAMETAB   .WORD   000B         ;Offset into char data
+           .WORD   012C
+           .WORD   01EA
+           .WORD   02A8
+           .WORD   0366
+;
+; Frame Font data
+; each frame has:
+; - number of characters in the frame
+; - char code + 8 rows(bytes) of data x num chars
+;
+; only updates the changed chars in each frame 
+;
+; FRAME 0
+           .BYTE   32.
+           .BYTE   000,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   001,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   002,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   003,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   004,07F,07F,07F,07F,07F,07F,07F,01F
+           .BYTE   005,07F,07F,01F,067,017,009,000,062
+           .BYTE   006,07F,073,072,044,000,062,043,003
+           .BYTE   007,07F,07F,07F,07F,07F,07E,07B,077
+           .BYTE   008,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   009,07F,07F,03F,00F,047,05F,07F,07F
+           .BYTE   00A,07F,07F,000,005,01C,05E,05F,01F
+           .BYTE   00B,07F,000,01F,07F,01E,01C,018,030
+           .BYTE   00C,07F,000,060,07F,07F,078,002,000
+           .BYTE   00D,070,038,01F,07F,07F,07F,03F,01C
+           .BYTE   00E,011,078,078,079,07D,07D,07C,07E
+           .BYTE   00F,073,07C,07F,07F,07F,07F,07F,07F
+           .BYTE   010,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   011,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   012,03F,003,003,073,073,033,073,078
+           .BYTE   013,011,042,060,071,070,078,078,071
+           .BYTE   014,010,021,00F,07F,07F,07F,07F,07F
+           .BYTE   015,000,000,060,003,003,067,067,067
+           .BYTE   016,07C,070,071,078,07C,07F,07F,07F
+           .BYTE   017,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   018,07F,07F,07F,07F,000,07F,07F,07F
+           .BYTE   019,07F,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01A,07C,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01B,063,047,01F,01F,000,07F,07F,07F
+           .BYTE   01C,07F,07F,07F,07E,000,07F,07F,07F
+           .BYTE   01D,047,007,03F,03F,000,07F,07F,07F
+           .BYTE   01E,07F,07F,07E,07C,000,07F,07F,07F
+           .BYTE   01F,07F,07F,07F,07F,000,07F,07F,07F
+; FRAME 1
+           .BYTE   21.
+           .BYTE   004,07F,07F,07F,07F,07F,03F,05F,007
+           .BYTE   005,07F,07F,04F,02B,01D,004,042,020
+           .BYTE   006,07B,073,070,068,058,070,000,044
+           .BYTE   007,07F,07F,07F,07F,07F,07E,079,079
+           .BYTE   009,07F,03F,01F,00F,047,07F,07F,07F
+           .BYTE   00A,03F,000,068,02C,00E,00F,01F,01F
+           .BYTE   00B,000,06F,06F,024,000,000,000,000
+           .BYTE   00C,078,07F,07F,07E,038,000,010,000
+           .BYTE   00D,027,03F,07F,07D,07C,03C,00E,07E
+           .BYTE   00E,01C,07E,07E,07E,07E,07E,07E,078
+           .BYTE   00F,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   012,01F,007,007,047,011,019,039,009
+           .BYTE   013,038,07E,07F,07F,07F,07F,07E,07F
+           .BYTE   014,000,03F,01F,01F,00F,04F,067,067
+           .BYTE   015,000,068,07C,03F,03F,07F,07F,07F
+           .BYTE   016,070,073,079,07C,07E,07F,07F,07F
+           .BYTE   01A,049,079,073,063,000,07F,07F,07F
+           .BYTE   01B,07F,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01C,073,073,067,047,000,07F,07F,07F
+           .BYTE   01D,07F,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01E,07F,07F,07F,07F,000,07F,07F,07F
+; FRAME 2
+           .BYTE   21.
+           .BYTE   004,07F,07F,07F,07F,07F,07F,01F,03F
+           .BYTE   005,07F,07F,07F,03F,007,04F,010,001
+           .BYTE   006,07F,07B,073,068,041,020,060,041
+           .BYTE   007,07F,07F,07F,07F,07F,07F,07E,07B
+           .BYTE   009,07F,07F,03F,00F,003,02F,07F,07F
+           .BYTE   00A,07F,07F,000,058,01E,00F,00F,00F
+           .BYTE   00B,07F,000,01F,04F,007,00C,000,008
+           .BYTE   00C,007,070,07F,07F,01E,00F,000,000
+           .BYTE   00D,040,007,03F,07F,03E,038,030,018
+           .BYTE   00E,018,03C,07D,07E,07E,07F,07F,07E
+           .BYTE   00F,079,07E,07F,07F,07F,07F,07F,07F
+           .BYTE   011,07F,07F,07F,07F,07F,03F,01F,04F
+           .BYTE   012,00F,007,043,061,078,07E,07F,07F
+           .BYTE   013,060,061,071,078,07C,079,067,04F
+           .BYTE   014,007,07F,07F,07F,07F,03F,00F,061
+           .BYTE   015,078,001,071,078,07C,07E,07F,07F
+           .BYTE   016,061,040,04F,04F,04F,04F,067,067
+           .BYTE   019,067,067,063,067,000,07F,07F,07F
+           .BYTE   01A,07F,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01B,00F,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01C,07C,07F,07F,07F,000,07F,07F,07F
+; FRAME 3
+           .BYTE   21.
+           .BYTE   004,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   005,07F,07F,07F,07F,07F,01F,047,017
+           .BYTE   006,07F,07F,073,067,070,04B,070,060
+           .BYTE   009,07F,07F,07F,03F,05F,07F,07F,07F
+           .BYTE   00A,07F,07F,000,030,03A,03F,03F,03F
+           .BYTE   00B,07F,001,00C,03E,042,018,04C,032
+           .BYTE   00C,07F,03C,040,07F,070,060,040,000
+           .BYTE   00D,002,004,01F,07F,079,071,058,018
+           .BYTE   00E,000,010,074,070,079,07B,07B,078
+           .BYTE   00F,070,073,07E,07F,07F,07F,07F,07F
+           .BYTE   011,07F,07F,07F,07F,07F,07F,03F,011
+           .BYTE   012,03F,01F,007,041,071,07C,07E,07F
+           .BYTE   013,008,000,00C,01F,01F,00F,01F,07F
+           .BYTE   014,000,01F,07F,07F,07F,00F,01E,07C
+           .BYTE   015,040,000,007,047,04F,04F,040,07F
+           .BYTE   016,07B,066,040,003,01F,03F,07F,07F
+           .BYTE   017,07F,07F,07F,07F,07F,07E,07C,079
+           .BYTE   019,043,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01B,07F,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01C,073,067,067,07F,000,07F,07F,07F
+           .BYTE   01F,079,07F,07F,07F,000,07F,07F,07F
+; FRAME 4
+           .BYTE   25.
+           .BYTE   005,07F,07F,01F,067,017,009,000,062
+           .BYTE   006,07F,073,072,044,000,062,043,003
+           .BYTE   007,07F,07F,07F,07F,07F,07E,07B,077
+           .BYTE   009,07F,07F,03F,00F,047,05F,07F,07F
+           .BYTE   00A,07F,07F,000,005,01C,05E,05F,01F
+           .BYTE   00B,07F,000,01F,07F,01E,01C,018,030
+           .BYTE   00C,07F,000,060,07F,07F,078,002,000
+           .BYTE   00D,070,038,01F,07F,07F,07F,03F,01C
+           .BYTE   00E,011,078,078,079,07D,07D,07C,07E
+           .BYTE   00F,073,07C,07F,07F,07F,07F,07F,07F
+           .BYTE   011,07F,07F,07F,07F,07F,07F,07E,07B
+           .BYTE   012,03F,003,003,073,073,033,073,078
+           .BYTE   013,011,042,060,071,070,078,078,071
+           .BYTE   014,010,021,00F,07F,07F,07F,07F,07F
+           .BYTE   015,000,000,060,003,003,067,067,067
+           .BYTE   016,07C,070,071,078,07C,07F,07F,07F
+           .BYTE   017,07F,07F,07F,07F,07F,07F,07F,07F
+           .BYTE   018,07F,07F,07F,07F,000,07F,07F,07F
+           .BYTE   019,07F,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01A,07C,07F,07F,07F,000,07F,07F,07F
+           .BYTE   01B,063,047,01F,01F,000,07F,07F,07F
+           .BYTE   01C,07F,07F,07F,07E,000,07F,07F,07F
+           .BYTE   01D,047,007,03F,03F,000,07F,07F,07F
+           .BYTE   01E,07F,07F,07E,07C,000,07F,07F,07F
+           .BYTE   01F,07F,07F,07F,07F,000,07F,07F,07F
+; 
+FRAMEADR   .WORD   FRAMES        ;Address for start of frame data
+ROW        .BYTE   00            ;current text screen row
+NUMCHARS   .BYTE   00            ;number of characters to load
+CHRINFRM   .BYTE   00            ;number of characters in frame
+RETRNADR   .WORD   0000          ;return address
+;
+; sos dev control call params
+;
+DEVBLK2    .BYTE   03            ;3 params
+WDEVNUM    .BYTE   00            ;devnum
+           .BYTE   11            ;partial char load
+           .WORD   CTRLLIST      ;pointer to control list
+;
+; 
+; 
+CTRLLIST   .BYTE   000           ;number of characters to load
+           .BYTE   000,000,000,000,000,000,000,000,000 ;chr code + 8 rows
+           .BYTE   000,000,000,000,000,000,000,000,000 ; of data
+           .BYTE   000,000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000,000
+           .BYTE   000,000,000,000,000,000,000,000,000
+;
+; 
+;----------------------------------------------------------------------
+;         
+           .PROC   HSCROLL
+;         
+; scroll text screen right one character
+; with wrap around
+;
+LINECNT    .EQU    0EA
+LINEPTR    .EQU    0EC
+
+           LDA     #00
+           STA     LINECNT       ;number of lines
+NXTLINE    LDA     LINECNT
+           JSR     CALCADR       ;setup up line pointer
+           LDY     #39.          ;number of characters
+           LDA     (LINEPTR),Y   ;current char in column 39
+           PHA                   ;and save
+NXTCHAR    DEY                   ;get character to the left one pos
+           LDA     (LINEPTR),Y
+           INY                   ;and move one char to the right
+           STA     (LINEPTR),Y
+           DEY
+           BNE     NXTCHAR       ;repeat until we are at column 0
+           PLA                   ;then get the saved char
+           STA     (LINEPTR),Y   ;and store in column 0
+           INC     LINECNT       ;inc line counter
+           LDA     LINECNT
+           CMP     #24.          ;24 Lines
+           BCC     NXTLINE
+           RTS
+;
+; calculate line pointer
+; - input A = current line
+; - output EC/ED = address of start of line
+;
+CALCADR    PHA                   ;save line number
+           LSR     A             ;calculate line address high byte
+           AND     #03
+           ORA     #04
+           STA     LINEPTR+1
+           PLA                   ;restore line number
+           AND     #018          ;calculate line address low byte
+           BCC     ALTERN
+           ADC     #07F
+ALTERN     STA     LINEPTR
+           ASL     A
+           ASL     A
+           ORA     LINEPTR
+           STA     LINEPTR
+           RTS
+         
+          .END
