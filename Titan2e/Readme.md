@@ -6,6 +6,8 @@ See code for more details.
 
 This is included in the original soshdboot disk images. I just had not got around to documenting and sharing the code until now.
 
+Note, this only allows the emulation to be launched and config changed before launching. No saving of the config via the menu is supported with this current implementation.
+
 ## Build the Interpreter:
 ```
 ca65 titan2e.interp.s -l titan2e.interp.lst
