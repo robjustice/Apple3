@@ -4,7 +4,7 @@ This is a SOS Interpreter to allow launching of the //e emulation from a Selecto
 This is based on a disassembly of the Titan //e disk 
 See code for more details.
 
-This is included in the original soshdboot disk images. I just had not got around to documenting and sharing the code.
+This is included in the original soshdboot disk images. I just had not got around to documenting and sharing the code until now.
 
 ## Build the Interpreter:
 ```
