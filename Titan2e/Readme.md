@@ -1,4 +1,4 @@
-# Titan //e Emulation Interpreter
+# Titan /// plus //e Emulation Interpreter
 
 This is a SOS Interpreter to allow launching of the //e emulation from a Selector menu.
 This is based on a disassembly of the Titan //e disk 
