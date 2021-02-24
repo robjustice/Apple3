@@ -1,6 +1,7 @@
 # Titan /// plus // Emulation patch info for Selector 
 
-This details the patches I did to allow the Titan ///+// card's emulation to be started from Selector ///
+This details the patches I did to allow the Titan ///+// card's emulation to be started from Selector ///.
+
 Selector /// includes an install program that sets up the normal Apple II emulation onto a harddisk to allow launching without the need for a floppy. Support for the Titan cards was never provided.
 
 After Selector /// has been installed, and the Emulation installer has been run. The following is the disk structure and files created.
