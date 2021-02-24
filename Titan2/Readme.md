@@ -51,7 +51,7 @@ APPLE2.DATA    -> APP3P2.DATA
 Then I used a hex editor to change the filenames in the SOS3P2.INTERP file to reference the new names APP3P2.INTERPS & APP3P2.DATA
 And finally update the init code in the SOS3P2.INTERP file as detailed above. See the image of the changes in red.
 
-![Changes](/sos3p2_edit.jpg)
+![Changes](/Titan2/sos3p2_edit.jpg)
 
 I then found that due to the A3 having the disk controller in Slot6, and no slot7 to put a block storage device in, then its difficult to boot from one in Slot 1-4 directly.
 
