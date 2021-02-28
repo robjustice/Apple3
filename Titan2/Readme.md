@@ -1,6 +1,6 @@
 # Titan /// plus // Emulation patch info for Selector 
 
-This details the patches I did to allow the Titan ///+// card's emulation to be started from Selector ///.
+This details the patches I applied to allow the Titan ///+// card's emulation to be started directly from Selector ///.
 
 Selector /// includes an install program that sets up the normal Apple II emulation onto a harddisk to allow launching without the need for a floppy. Support for the Titan cards was never provided.
 
@@ -16,7 +16,7 @@ After Selector /// has been installed, and the Emulation installer has been run.
 ```               
 The Titan III+II card is basically a 128k saturn language card with an Apple II game port on it. The whole thing is enabled by setting the A3 to 1MHz and then performing an access to the Card slot rom (I/O select). The card then stays enabled while the speed is kept at 1Mhz. Once you switch back to 2MHz, the card deselects.
 
-I did some fishing around on the III+II disk, and found is has a lda CX00 for each slot, so this allows the disk to work with the card in any slot.
+I did some fishing around on the III+II disk, and found it has a lda CX00 for each slot to enable the card, so this allows the disk to work with the card in any slot.
 ```
          lda     $c100
          lda     $c200
@@ -42,7 +42,9 @@ SOS.INTERP
 048b        4c 62 fa    jmp $fa62 ; jmp A2 reset
 ```
 
-Now to patch this in some how. The approach I took was to copy and rename the three selector files for the standard emulation disk to create a set for the Titan card.
+Now to patch this in some how. I did start down disassembling the Selector Emulation installer, but did not finish this completely. That needs some more time to code support in for the the Titan card. So I parked this one, and looked for a simpler way to get it going.
+
+The approach I then took was to copy and rename the three selector files for the standard emulation disk to create a set for the Titan card.
 ```
 SOS.INTERP     -> SOS3P2.INTERP
 APPLE2.INTERPS -> APP3P2.INTERPS
