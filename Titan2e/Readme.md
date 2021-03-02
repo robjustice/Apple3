@@ -1,8 +1,7 @@
 # Titan /// plus //e Emulation Interpreter
 
 This is a SOS Interpreter to allow launching of the //e emulation from a Selector menu.
-This is based on a disassembly of the Titan //e disk 
-See code for more details.
+This is based on a disassembly of the Titan //e disk. The Interpreter is loaded which includes the rom images and other code all bundled together. It then moves things around in memory back to how the original Titan2e boot disk loadeded things and runs. See code for more details.
 
 This is included in the original soshdboot disk images. I just had not got around to documenting and sharing the code until now.
 
