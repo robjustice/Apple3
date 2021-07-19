@@ -1,0 +1,304 @@
+﻿### 6502bench SourceGen dis65 v1.0 ###
+{
+"_ContentVersion":4,
+"FileDataLength":1792,
+"FileDataCrc32":-52007121,
+"ProjectProps":{
+"CpuName":"6502",
+"IncludeUndocumentedInstr":false,
+"TwoByteBrk":true,
+"EntryFlags":32702671,
+"AutoLabelStyle":"Simple",
+"AnalysisParams":{
+"AnalyzeUncategorizedData":true,
+"DefaultTextScanMode":"LowHighAscii",
+"MinCharsForString":4,
+"SeekNearbyTargets":true,
+"UseRelocData":false,
+"SmartPlpHandling":false,
+"SmartPlbHandling":true},
+
+"PlatformSymbolFileIdentifiers":["RT:Apple/A3-ROM.sym65",
+"RT:Apple/A3-IO.sym65",
+"RT:Apple/SOS.sym65"],
+"ExtensionScriptFileIdentifiers":["RT:Apple/SOS.cs"],
+"ProjectSyms":{
+}},
+
+"AddressMap":[{
+"Offset":0,
+"Addr":6400}],
+"TypeHints":[{
+"Low":0,
+"High":0,
+"Hint":"Data"},
+
+{
+"Low":16,
+"High":16,
+"Hint":"Code"},
+
+{
+"Low":19,
+"High":19,
+"Hint":"Code"},
+
+{
+"Low":22,
+"High":22,
+"Hint":"Code"},
+
+{
+"Low":25,
+"High":25,
+"Hint":"Code"},
+
+{
+"Low":28,
+"High":28,
+"Hint":"Code"},
+
+{
+"Low":31,
+"High":31,
+"Hint":"Code"},
+
+{
+"Low":34,
+"High":34,
+"Hint":"Code"},
+
+{
+"Low":40,
+"High":40,
+"Hint":"Code"},
+
+{
+"Low":43,
+"High":43,
+"Hint":"Code"},
+
+{
+"Low":46,
+"High":46,
+"Hint":"Code"},
+
+{
+"Low":128,
+"High":128,
+"Hint":"Code"},
+
+{
+"Low":131,
+"High":131,
+"Hint":"Code"},
+
+{
+"Low":134,
+"High":134,
+"Hint":"Code"},
+
+{
+"Low":137,
+"High":137,
+"Hint":"Code"},
+
+{
+"Low":185,
+"High":185,
+"Hint":"Code"},
+
+{
+"Low":194,
+"High":194,
+"Hint":"Code"},
+
+{
+"Low":203,
+"High":203,
+"Hint":"Code"},
+
+{
+"Low":212,
+"High":212,
+"Hint":"Code"},
+
+{
+"Low":221,
+"High":221,
+"Hint":"Code"},
+
+{
+"Low":518,
+"High":518,
+"Hint":"Code"},
+
+{
+"Low":639,
+"High":639,
+"Hint":"Code"},
+
+{
+"Low":733,
+"High":733,
+"Hint":"Code"},
+
+{
+"Low":883,
+"High":883,
+"Hint":"Code"},
+
+{
+"Low":1149,
+"High":1149,
+"Hint":"Code"}],
+"StatusFlagOverrides":{
+},
+
+"Comments":{
+"16":"KEYBOARD NMI VECTOR",
+"19":"ALLOCATE A SIR",
+"22":"DEALLOCATE A SIR",
+"25":"DISABLE NMI",
+"28":"ENABLE NMI",
+"31":"QUEUE AN EVENT",
+"34":"SELECT I/O EXPANSION ROM",
+"37":"SYSTEM DEATH",
+"40":"SOS ERROR",
+"43":"REQUEST BUFFER",
+"46":"GET BUFFER\u0027S ADDRESS",
+"49":"RELEASE BUFFER",
+"179":"disk driver",
+"240":"save 6502 state",
+"258":"zero page back to 0",
+"263":"set bank for z80",
+"272":"enable Cxxx I/O",
+"277":"enable z80 fffx decoding switch",
+"279":"updated with slot during init?",
+"282":"10111110 - 1M,no IO,vid,nmi,wr prot,prim,primrom,norom",
+"290":"disable 6502 interrupts",
+"291":"switch to Z80",
+"294":"come back to here when its 6502\u0027s turn",
+"297":"branch if we have an Apple /// IRQ",
+"299":"interrupt or z80 should clear this???",
+"304":"back to $18 zero page",
+"319":"restore 6502 state",
+"333":"go service the I/O",
+"336":"done, go back and switch to z80",
+"339":"disable supervision timer???",
+"342":"  to allow 6502 interrupt handler to finish",
+"345":"enable 6502 interrupts, pending one will fire",
+"956":"SET INTERRUPT ZERO PAGE",
+"973":"ANY INTERRUPT ON ACIA?",
+"981":"ANY INTERRUPT ON E-6522?",
+"984":" No",
+"993":"CHECK FLAG BITS",
+"1002":"ANY INTERRUPT ON D-6522?",
+"1010":"ANY SLOT INTERRUPT?",
+"1013":" YES"},
+
+"LongComments":{
+"-2147483647":{
+"Text":"6502bench SourceGen v1.7.2-dev1",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":0},
+
+"240":{
+"Text":"\r\nHandover to Z80 routine\r\n\r\n",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":0},
+
+"0":{
+"Text":"Recreated SOS globals\r\n",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":0},
+
+"16":{
+"Text":"Dummy SOS Jump Table\r\n",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":0},
+
+"339":{
+"Text":"interrupt handler?\r\n",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":0},
+
+"883":{
+"Text":"6502 interrupt handler\r\n\r\nlooks copied from sos\r\n\r\n",
+"BoxMode":false,
+"MaxWidth":80,
+"BackgroundColor":0}},
+
+"Notes":{
+},
+
+"UserLabels":{
+},
+
+"OperandFormats":{
+"8":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"9":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"10":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"11":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"12":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"13":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"14":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null},
+
+"15":{
+"Length":1,
+"Format":"NumericLE",
+"SubFormat":"None",
+"SymbolRef":null}},
+
+"LvTables":{
+},
+
+"Visualizations":[],
+"VisualizationAnimations":[],
+"VisualizationSets":{
+},
+
+"RelocList":{
+},
+
+"DbrValues":{
+}}

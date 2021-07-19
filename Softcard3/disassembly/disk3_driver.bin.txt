@@ -1,0 +1,861 @@
+                           ; 6502bench SourceGen v1.7.2-dev1
+                           IMASK           .eq     $8b
+                           CURTRK          .eq     $8c
+                           SECT            .eq     $98
+                           MONTIMEL        .eq     $99
+                           MONTIMEH        .eq     $9a
+                           BUF             .eq     $9b
+                           TRKN            .eq     $9e
+                           RECALCNT        .eq     $d2
+                           SEEKWAIT        .eq     $d3
+                           IRQMASK         .eq     $d4
+                           D_TRACK         .eq     $16d8
+                           D_SECTOR        .eq     $16d9
+                           D_UNITNUM       .eq     $16da
+                           D_BUFL          .eq     $16db
+                           D_BUFH          .eq     $16dc
+                           D_BUFX          .eq     $16dd
+                           D_COMMAND       .eq     $16de
+                           CLRPDL0         .eq     $c058             ;Clear PDL0 (A/D Addr 0)
+                           SETPDL0         .eq     $c059             ;Set PDL0 (A/D Addr 0)
+                           CLRPDL2         .eq     $c05a             ;Clear PDL2 (A/D Addr 2)
+                           SETPDL2         .eq     $c05b             ;Set PDL2 (A/D Addr 2)
+                           CLRPDLEN        .eq     $c05c             ;Clear PDLEN (A/D Ramp Start)
+                           SETPDLEN        .eq     $c05d             ;Set PDLEN (A/D Ramp Start)
+                           CLRPDL1         .eq     $c05e             ;Clear PDL1 (A/D Addr 1)
+                           SETPDL1         .eq     $c05f             ;Set PDL1 (A/D Addr 1)
+                           READSW0         .eq     $c060             ;Read SW0
+                           READSW1         .eq     $c061             ;Read SW1/MGNSW
+                           READSW2         .eq     $c062             ;Read SW2
+                           READSW3         .eq     $c063             ;Read SW3/SCO
+                           JOYRDY          .eq     $c066             ;Read PDLOT (A/D Ramp Stop)
+                           CLOCK           .eq     $c070             ;clock
+                           CLRDSA0         .eq     $c0d0             ;Clear Drive Select A0
+                           MS_EXT2         .eq     $c0d1
+                           MD_EXT1         .eq     $c0d2
+                           MS_EXT1         .eq     $c0d3
+                           CLREN1INT       .eq     $c0d4
+                           SETEN1INT       .eq     $c0d5
+                           CLRSCR          .eq     $c0d8             ;Clear Smooth Scroll  (to turn smooth scroll off)
+                           CLRENSEL        .eq     $c0dc             ;Clear enable silentype port (ENSEL)
+                           CLRENSIO        .eq     $c0de             ;Clear enable silentype port (ENSIO)
+                           MOTORON         .eq     $c0e9
+                           IS_EXT          .eq     $c0eb
+                           READ16          .eq     $f148
+                           RDADR16         .eq     $f1b9
+                           WRITE16         .eq     $f216
+                           SEEK            .eq     $f400
+                           MSWAIT          .eq     $f456
+                           ANALOG          .eq     $f4a8
+                           ANLOG1          .eq     $f4ab
+                           Z_REG           .eq     $ffd0             ;zero page register
+                           D_TIMER2C_L     .eq     $ffd8
+                           D_TIMER2C_H     .eq     $ffd9
+                           D_ACR           .eq     $ffdb
+                           D_IFR           .eq     $ffdd
+                           E_REG           .eq     $ffdf             ;environment register
+                           E_IER           .eq     $ffee
+
+                                           .org    $9a00
++000000 9a00: 20 ec 9a                     jsr     L9AEC
++000003 9a03: a2 00                        ldx     #$00
++000005 9a05: a0 12                        ldy     #$12
++000007 9a07: a9 30                        lda     #$30
++000009 9a09: d0 04                        bne     L9A0F
+
++00000b 9a0b: e8           L9A0B           inx
++00000c 9a0c: b9 e0 16                     lda     $16e0,y
++00000f 9a0f: 29 0f        L9A0F           and     #$0f
++000011 9a11: 9d b1 9b                     sta     L9BB1,x
++000014 9a14: 88                           dey
++000015 9a15: c0 07                        cpy     #$07
++000017 9a17: f0 f2                        beq     L9A0B
++000019 9a19: b9 e0 16                     lda     $16e0,y
++00001c 9a1c: 0a                           asl     A
++00001d 9a1d: 0a                           asl     A
++00001e 9a1e: 0a                           asl     A
++00001f 9a1f: 0a                           asl     A
++000020 9a20: 1d b1 9b                     ora     L9BB1,x
++000023 9a23: 9d b1 9b                     sta     L9BB1,x
++000026 9a26: 88                           dey
++000027 9a27: 10 e2                        bpl     L9A0B
++000029 9a29: ad b8 9b                     lda     L9BB8
++00002c 9a2c: 20 8d 9b                     jsr     L9B8D
++00002f 9a2f: aa                           tax
++000030 9a30: ad b9 9b                     lda     L9BB9
++000033 9a33: 20 8d 9b                     jsr     L9B8D
++000036 9a36: a8                           tay
++000037 9a37: 4a                           lsr     A
++000038 9a38: 4a                           lsr     A
++000039 9a39: 85 d2                        sta     RECALCNT
++00003b 9a3b: 98                           tya
++00003c 9a3c: 29 03                        and     #$03
++00003e 9a3e: d0 05                        bne     L9A45
++000040 9a40: e0 03                        cpx     #$03
++000042 9a42: 90 01                        bcc     L9A45
++000044 9a44: 88                           dey
++000045 9a45: 18           L9A45           clc
++000046 9a46: 98                           tya
++000047 9a47: 65 d2                        adc     RECALCNT
++000049 9a49: 7d a4 9b                     adc     L9BA4,x
++00004c 9a4c: 85 d2                        sta     RECALCNT
++00004e 9a4e: ad b7 9b                     lda     L9BB7
++000051 9a51: 20 8d 9b                     jsr     L9B8D
++000054 9a54: 18                           clc
++000055 9a55: 65 d2                        adc     RECALCNT
++000057 9a57: 38                           sec
++000058 9a58: e9 07        L9A58           sbc     #$07
++00005a 9a5a: c9 08                        cmp     #$08
++00005c 9a5c: b0 fa                        bcs     L9A58
++00005e 9a5e: 8d b6 9b                     sta     L9BB6
++000061 9a61: a9 d0                        lda     #$d0
++000063 9a63: 85 d0                        sta     $d0
++000065 9a65: a9 ff                        lda     #$ff
++000067 9a67: 85 d1                        sta     $d1
++000069 9a69: a9 8f                        lda     #$8f
++00006b 9a6b: 8d d1 14                     sta     $14d1
++00006e 9a6e: a9 a5                        lda     #$a5
++000070 9a70: 85 d3                        sta     SEEKWAIT
++000072 9a72: a0 00                        ldy     #$00
++000074 9a74: b9 b1 9b     L9A74           lda     L9BB1,y
++000077 9a77: 91 d0                        sta     ($d0),y
++000079 9a79: 45 d3                        eor     SEEKWAIT
++00007b 9a7b: 85 d3                        sta     SEEKWAIT
++00007d 9a7d: c8                           iny
++00007e 9a7e: c0 0a                        cpy     #$0a
++000080 9a80: 90 f2                        bcc     L9A74
++000082 9a82: 91 d0                        sta     ($d0),y
++000084 9a84: ad d0 ff                     lda     Z_REG
++000087 9a87: 48                           pha
++000088 9a88: ad df ff                     lda     E_REG
++00008b 9a8b: 48                           pha
++00008c 9a8c: 09 80                        ora     #$80
++00008e 9a8e: 8d df ff                     sta     E_REG
++000091 9a91: a0 14                        ldy     #$14
++000093 9a93: 8c d0 ff                     sty     Z_REG
++000096 9a96: ad 70 c0                     lda     CLOCK
++000099 9a99: 30 48                        bmi     L9AE3
++00009b 9a9b: a2 12                        ldx     #$12
++00009d 9a9d: 8e d0 ff                     stx     Z_REG
++0000a0 9aa0: a9 ff                        lda     #$ff
++0000a2 9aa2: 8d 70 c0                     sta     CLOCK
++0000a5 9aa5: 8d 70 c0                     sta     CLOCK
++0000a8 9aa8: a2 01                        ldx     #$01
++0000aa 9aaa: e8           L9AAA           inx
++0000ab 9aab: 08                           php
++0000ac 9aac: 78                           sei
++0000ad 9aad: 8e d0 ff     L9AAD           stx     Z_REG
++0000b0 9ab0: ad 70 c0                     lda     CLOCK
++0000b3 9ab3: bd b1 9b                     lda     L9BB1,x
++0000b6 9ab6: 8d 70 c0                     sta     CLOCK
++0000b9 9ab9: ad 70 c0                     lda     CLOCK
++0000bc 9abc: 8c d0 ff                     sty     Z_REG
++0000bf 9abf: ad 70 c0                     lda     CLOCK
++0000c2 9ac2: d0 e9                        bne     L9AAD
++0000c4 9ac4: 28                           plp
++0000c5 9ac5: e0 07                        cpx     #$07
++0000c7 9ac7: 90 e1                        bcc     L9AAA
++0000c9 9ac9: a2 0e                        ldx     #$0e
++0000cb 9acb: 8e d0 ff                     stx     Z_REG
++0000ce 9ace: ad b9 9b                     lda     L9BB9
++0000d1 9ad1: 09 cc                        ora     #$cc
++0000d3 9ad3: 8d 70 c0                     sta     CLOCK
++0000d6 9ad6: ee d0 ff                     inc     Z_REG
++0000d9 9ad9: ad b9 9b                     lda     L9BB9
++0000dc 9adc: 4a                           lsr     A
++0000dd 9add: 4a                           lsr     A
++0000de 9ade: 09 cc                        ora     #$cc
++0000e0 9ae0: 8d 70 c0                     sta     CLOCK
++0000e3 9ae3: 68           L9AE3           pla
++0000e4 9ae4: 8d df ff                     sta     E_REG
++0000e7 9ae7: 68                           pla
++0000e8 9ae8: 8d d0 ff                     sta     Z_REG
++0000eb 9aeb: 60                           rts
+
++0000ec 9aec: ad df ff     L9AEC           lda     E_REG
++0000ef 9aef: 09 40                        ora     #$40
++0000f1 9af1: 8d df ff                     sta     E_REG
++0000f4 9af4: 60                           rts
+
++0000f5 9af5: 20 ec 9a                     jsr     L9AEC
++0000f8 9af8: ad d0 ff                     lda     Z_REG
++0000fb 9afb: 48                           pha
++0000fc 9afc: ad df ff                     lda     E_REG
++0000ff 9aff: 48                           pha
++000100 9b00: 09 80                        ora     #$80
++000102 9b02: 8d df ff                     sta     E_REG
++000105 9b05: a9 00                        lda     #$00
++000107 9b07: 8d e0 16                     sta     $16e0
++00010a 9b0a: a0 14                        ldy     #$14
++00010c 9b0c: 8c d0 ff                     sty     Z_REG
++00010f 9b0f: ad 70 c0                     lda     CLOCK
++000112 9b12: 30 70                        bmi     L9B84
++000114 9b14: a9 10                        lda     #$10
++000116 9b16: 8d bb 9b                     sta     L9BBB
++000119 9b19: a2 08        L9B19           ldx     #$08
++00011b 9b1b: 08                           php
++00011c 9b1c: 78                           sei
++00011d 9b1d: ca           L9B1D           dex
++00011e 9b1e: 30 19                        bmi     L9B39
++000120 9b20: 8e d0 ff                     stx     Z_REG
++000123 9b23: ad 70 c0                     lda     CLOCK
++000126 9b26: 9d d4 18                     sta     $18d4,x
++000129 9b29: 8c d0 ff                     sty     Z_REG
++00012c 9b2c: ad 70 c0                     lda     CLOCK
++00012f 9b2f: f0 ec                        beq     L9B1D
++000131 9b31: 28                           plp
++000132 9b32: ce bb 9b                     dec     L9BBB
++000135 9b35: 10 e2                        bpl     L9B19
++000137 9b37: 30 4b                        bmi     L9B84
+
++000139 9b39: 28           L9B39           plp
++00013a 9b3a: a2 0f                        ldx     #$0f
++00013c 9b3c: 8e d0 ff                     stx     Z_REG
++00013f 9b3f: ad 70 c0                     lda     CLOCK
++000142 9b42: 38                           sec
++000143 9b43: 2a                           rol     A
++000144 9b44: 2a                           rol     A
++000145 9b45: ce d0 ff                     dec     Z_REG
++000148 9b48: 2d 70 c0                     and     CLOCK
++00014b 9b4b: 8d dc 18                     sta     $18dc
++00014e 9b4e: a2 09                        ldx     #$09
++000150 9b50: bd d4 18     L9B50           lda     $18d4,x
++000153 9b53: 9d b1 9b                     sta     L9BB1,x
++000156 9b56: ca                           dex
++000157 9b57: 10 f7                        bpl     L9B50
++000159 9b59: a9 19                        lda     #$19
++00015b 9b5b: 8d ba 9b                     sta     L9BBA
++00015e 9b5e: a0 11                        ldy     #$11
++000160 9b60: a2 00                        ldx     #$00
++000162 9b62: bd b1 9b     L9B62           lda     L9BB1,x
++000165 9b65: 4a                           lsr     A
++000166 9b66: 4a                           lsr     A
++000167 9b67: 4a                           lsr     A
++000168 9b68: 4a                           lsr     A
++000169 9b69: 09 30                        ora     #$30
++00016b 9b6b: 99 e0 16                     sta     $16e0,y
++00016e 9b6e: e8                           inx
++00016f 9b6f: 88                           dey
++000170 9b70: 30 12                        bmi     L9B84
++000172 9b72: bd b1 9b     L9B72           lda     L9BB1,x
++000175 9b75: 29 0f                        and     #$0f
++000177 9b77: 09 30                        ora     #$30
++000179 9b79: 99 e0 16                     sta     $16e0,y
++00017c 9b7c: 88                           dey
++00017d 9b7d: c0 07                        cpy     #$07
++00017f 9b7f: d0 e1                        bne     L9B62
++000181 9b81: e8                           inx
++000182 9b82: d0 ee                        bne     L9B72
++000184 9b84: 68           L9B84           pla
++000185 9b85: 8d df ff                     sta     E_REG
++000188 9b88: 68                           pla
++000189 9b89: 8d d0 ff                     sta     Z_REG
++00018c 9b8c: 60                           rts
+
++00018d 9b8d: 48           L9B8D           pha
++00018e 9b8e: 4a                           lsr     A
++00018f 9b8f: 4a                           lsr     A
++000190 9b90: 4a                           lsr     A
++000191 9b91: 4a                           lsr     A
++000192 9b92: a8                           tay
++000193 9b93: 68                           pla
++000194 9b94: 29 0f                        and     #$0f
++000196 9b96: 18                           clc
++000197 9b97: 79 9b 9b                     adc     L9B9B,y
++00019a 9b9a: 60                           rts
+
++00019b 9b9b: 00           L9B9B           .dd1    $00
++00019c 9b9c: 0a                           .dd1    $0a
++00019d 9b9d: 14                           .dd1    $14
++00019e 9b9e: 1e                           .dd1    $1e
++00019f 9b9f: 28 32 3c 46+                 .str    “(2<FP”
++0001a4 9ba4: 5a           L9BA4           .dd1    $5a
++0001a5 9ba5: 08                           .dd1    $08
++0001a6 9ba6: 0b                           .dd1    $0b
++0001a7 9ba7: 0b                           .dd1    $0b
++0001a8 9ba8: 07                           .dd1    $07
++0001a9 9ba9: 09                           .dd1    $09
++0001aa 9baa: 0c                           .dd1    $0c
++0001ab 9bab: 07                           .dd1    $07
++0001ac 9bac: 0a                           .dd1    $0a
++0001ad 9bad: 0d                           .dd1    $0d
++0001ae 9bae: 08                           .dd1    $08
++0001af 9baf: 0b                           .dd1    $0b
++0001b0 9bb0: 0d                           .dd1    $0d
++0001b1 9bb1: 00 00 00 00+ L9BB1           .fill   5,$00
++0001b6 9bb6: 00           L9BB6           .dd1    $00
++0001b7 9bb7: 00           L9BB7           .dd1    $00
++0001b8 9bb8: 00           L9BB8           .dd1    $00
++0001b9 9bb9: 00           L9BB9           .dd1    $00
++0001ba 9bba: 00           L9BBA           .dd1    $00
++0001bb 9bbb: 00           L9BBB           .dd1    $00
+
++0001bc 9bbc: 20 ec 9a                     jsr     L9AEC
++0001bf 9bbf: 20 1e 9c                     jsr     L9C1E
++0001c2 9bc2: 90 03                        bcc     L9BC7
++0001c4 9bc4: 20 5e 1a                     jsr     $1a5e
++0001c7 9bc7: ad e0 16     L9BC7           lda     $16e0
++0001ca 9bca: 29 04                        and     #$04
++0001cc 9bcc: d0 0a                        bne     L9BD8
++0001ce 9bce: ad 62 c0                     lda     READSW2
++0001d1 9bd1: ae 60 c0                     ldx     READSW0
++0001d4 9bd4: a0 01                        ldy     #$01
++0001d6 9bd6: d0 08                        bne     L9BE0
+
++0001d8 9bd8: ad 61 c0     L9BD8           lda     READSW1
++0001db 9bdb: ae 63 c0                     ldx     READSW3
++0001de 9bde: a0 03                        ldy     #$03
++0001e0 9be0: 84 d0        L9BE0           sty     $d0
++0001e2 9be2: a0 00                        ldy     #$00
++0001e4 9be4: 0a                           asl     A
++0001e5 9be5: 90 01                        bcc     L9BE8
++0001e7 9be7: 88                           dey
++0001e8 9be8: 8e e1 16     L9BE8           stx     $16e1
++0001eb 9beb: 8a                           txa
++0001ec 9bec: a0 00                        ldy     #$00
++0001ee 9bee: 0a                           asl     A
++0001ef 9bef: 90 01                        bcc     L9BF2
++0001f1 9bf1: 88                           dey
++0001f2 9bf2: 8e e2 16     L9BF2           stx     $16e2
++0001f5 9bf5: 4e e0 16                     lsr     $16e0
++0001f8 9bf8: 90 06                        bcc     L9C00
++0001fa 9bfa: 20 57 9c                     jsr     L9C57
++0001fd 9bfd: 8d e3 16                     sta     $16e3
++000200 9c00: e6 d0        L9C00           inc     $d0
++000202 9c02: 4e e0 16                     lsr     $16e0
++000205 9c05: 90 06                        bcc     L9C0D
++000207 9c07: 20 57 9c                     jsr     L9C57
++00020a 9c0a: 8d e4 16                     sta     $16e4
++00020d 9c0d: ad df ff     L9C0D           lda     E_REG
++000210 9c10: 29 3c                        and     #$3c
++000212 9c12: 8d df ff                     sta     E_REG
++000215 9c15: a9 0f                        lda     #$0f
++000217 9c17: a2 48                        ldx     #$48
++000219 9c19: a0 9c                        ldy     #$9c
++00021b 9c1b: 4c 5e 1e                     jmp     $1e5e
+
++00021e 9c1e: a9 0f        L9C1E           lda     #$0f
++000220 9c20: a2 48                        ldx     #$48
++000222 9c22: a0 9c                        ldy     #$9c
++000224 9c24: 20 05 1e                     jsr     $1e05
++000227 9c27: 90 03                        bcc     L9C2C
++000229 9c29: a9 00                        lda     #$00
++00022b 9c2b: 60                           rts
+
++00022c 9c2c: ad df ff     L9C2C           lda     E_REG
++00022f 9c2f: 29 7f                        and     #$7f
++000231 9c31: 09 43                        ora     #$43
++000233 9c33: 8d df ff                     sta     E_REG
++000236 9c36: 08                           php
++000237 9c37: 78                           sei
++000238 9c38: ad db ff                     lda     D_ACR
++00023b 9c3b: 29 df                        and     #$df
++00023d 9c3d: 8d db ff                     sta     D_ACR
++000240 9c40: 28                           plp
++000241 9c41: 2c dc c0                     bit     CLRENSEL
++000244 9c44: 2c de c0                     bit     CLRENSIO
++000247 9c47: 60                           rts
+
++000248 9c48: 0c                           .dd1    $0c
++000249 9c49: 00                           .dd1    $00
++00024a 9c4a: 00                           .dd1    $00
++00024b 9c4b: 00                           .dd1    $00
++00024c 9c4c: 00                           .dd1    $00
++00024d 9c4d: 0d                           .dd1    $0d
++00024e 9c4e: 00                           .dd1    $00
++00024f 9c4f: 00                           .dd1    $00
++000250 9c50: 00                           .dd1    $00
++000251 9c51: 00                           .dd1    $00
++000252 9c52: 0e                           .dd1    $0e
++000253 9c53: 00                           .dd1    $00
++000254 9c54: 00                           .dd1    $00
++000255 9c55: 00                           .dd1    $00
++000256 9c56: 00                           .dd1    $00
+
++000257 9c57: a5 d0        L9C57           lda     $d0
++000259 9c59: 4a                           lsr     A
++00025a 9c5a: 2c 58 c0                     bit     CLRPDL0
++00025d 9c5d: 90 03                        bcc     L9C62
++00025f 9c5f: 2c 59 c0                     bit     SETPDL0
++000262 9c62: 4a           L9C62           lsr     A
++000263 9c63: 2c 5e c0                     bit     CLRPDL1
++000266 9c66: 90 03                        bcc     L9C6B
++000268 9c68: 2c 5f c0                     bit     SETPDL1
++00026b 9c6b: 4a           L9C6B           lsr     A
++00026c 9c6c: 2c 5a c0                     bit     CLRPDL2
++00026f 9c6f: 90 03                        bcc     L9C74
++000271 9c71: 2c 5b c0                     bit     SETPDL2
++000274 9c74: 08           L9C74           php
++000275 9c75: 58           L9C75           cli
++000276 9c76: 2c 5c c0                     bit     CLRPDLEN
++000279 9c79: a9 f4                        lda     #$f4
++00027b 9c7b: 8d d8 ff                     sta     D_TIMER2C_L
++00027e 9c7e: a9 01                        lda     #$01
++000280 9c80: 8d d9 ff                     sta     D_TIMER2C_H
++000283 9c83: a9 20                        lda     #$20
++000285 9c85: 2c dd ff     L9C85           bit     D_IFR
++000288 9c88: f0 fb                        beq     L9C85
++00028a 9c8a: 78                           sei
++00028b 9c8b: 38                           sec
++00028c 9c8c: a9 68                        lda     #$68
++00028e 9c8e: 8d d8 ff                     sta     D_TIMER2C_L
++000291 9c91: a9 01                        lda     #$01
++000293 9c93: 2c 5d c0                     bit     SETPDLEN
++000296 9c96: 20 a8 f4                     jsr     ANALOG
++000299 9c99: 90 0c                        bcc     L9CA7
++00029b 9c9b: 58           L9C9B           cli
++00029c 9c9c: 78                           sei
++00029d 9c9d: 2c 66 c0                     bit     JOYRDY
++0002a0 9ca0: 10 d3                        bpl     L9C75
++0002a2 9ca2: 20 ab f4                     jsr     ANLOG1
++0002a5 9ca5: b0 f4                        bcs     L9C9B
++0002a7 9ca7: 28           L9CA7           plp
++0002a8 9ca8: 49 ff                        eor     #$ff
++0002aa 9caa: 30 13                        bmi     L9CBF
++0002ac 9cac: 85 d1                        sta     $d1
++0002ae 9cae: 98                           tya
++0002af 9caf: 49 ff                        eor     #$ff
++0002b1 9cb1: 46 d1                        lsr     $d1
++0002b3 9cb3: 6a                           ror     A
++0002b4 9cb4: 46 d1                        lsr     $d1
++0002b6 9cb6: 6a                           ror     A
++0002b7 9cb7: 46 d1                        lsr     $d1
++0002b9 9cb9: d0 07                        bne     L9CC2
++0002bb 9cbb: 6a                           ror     A
++0002bc 9cbc: 69 00                        adc     #$00
++0002be 9cbe: 60                           rts
+
++0002bf 9cbf: a9 00        L9CBF           lda     #$00
++0002c1 9cc1: 60                           rts
+
++0002c2 9cc2: a9 ff        L9CC2           lda     #$ff
++0002c4 9cc4: 60                           rts
+
+                           ; main entry - floppy?
++0002c5 9cc5: ad df ff                     lda     E_REG
++0002c8 9cc8: 48                           pha
++0002c9 9cc9: 29 df                        and     #$df              ;drop screen bit
++0002cb 9ccb: 8d cf 9f                     sta     VBLSAVE-1         ;environment save
++0002ce 9cce: 68                           pla
++0002cf 9ccf: 29 ef                        and     #$ef
++0002d1 9cd1: 09 03                        ora     #$03              ;enable rom I/O space
++0002d3 9cd3: 8d df ff                     sta     E_REG
++0002d6 9cd6: ad d8 c0                     lda     CLRSCR            ;disable smooth scroll
++0002d9 9cd9: 08                           php                       ;IF ALREADY SEI'D, THEN WE
++0002da 9cda: 68                           pla                       ; STAY THAT WAY...
++0002db 9cdb: 6a                           ror     A
++0002dc 9cdc: 6a                           ror     A
++0002dd 9cdd: 6a                           ror     A
++0002de 9cde: 6a                           ror     A
++0002df 9cdf: 85 d4                        sta     IRQMASK           ;'I' bit into bit7
+                           ; 
++0002e1 9ce1: ad db 16                     lda     D_BUFL            ;dest pointer lsb
++0002e4 9ce4: 85 9b                        sta     BUF               ;rom diskio buf lsb
++0002e6 9ce6: ad dc 16                     lda     D_BUFH            ;dest pointer msb
++0002e9 9ce9: 85 9c                        sta     BUF+1             ;rom diskio buf msb
++0002eb 9ceb: ad dd 16                     lda     D_BUFX            ;dest pointer xbyte
++0002ee 9cee: 8d 9c 14                     sta     $149c             ;rom diskio buf xbyte
++0002f1 9cf1: ad df ff                     lda     E_REG             ;down to 1MHz
++0002f4 9cf4: 09 80                        ora     #$80
++0002f6 9cf6: 8d df ff                     sta     E_REG
++0002f9 9cf9: 20 57 9e                     jsr     UNITSEL
++0002fc 9cfc: 20 14 9f                     jsr     L9F14
++0002ff 9cff: d0 22                        bne     L9D23
++000301 9d01: ae da 16                     ldx     D_UNITNUM         ;unit?
++000304 9d04: bd d9 9f                     lda     DRVTRACK,x
++000307 9d07: 38                           sec
++000308 9d08: e9 02                        sbc     #$02
++00030a 9d0a: b0 02                        bcs     L9D0E
++00030c 9d0c: 69 04                        adc     #$04
++00030e 9d0e: 20 8f 9f     L9D0E           jsr     MYSEEK2
++000311 9d11: 20 14 9f                     jsr     L9F14
++000314 9d14: d0 0d                        bne     L9D23
++000316 9d16: a9 00                        lda     #$00
++000318 9d18: ac da 16                     ldy     D_UNITNUM
++00031b 9d1b: 99 d1 9f                     sta     DRIVESEL,y
++00031e 9d1e: a9 28                        lda     #$28
++000320 9d20: 4c f0 9d                     jmp     L9DF0
+
++000323 9d23: ad de 16     L9D23           lda     D_COMMAND
++000326 9d26: 4a                           lsr     A
++000327 9d27: b0 0b                        bcs     SECTORIO          ;branch if its a read
++000329 9d29: ad df ff                     lda     E_REG             ;back to 2Meg
++00032c 9d2c: 29 7f                        and     #$7f
++00032e 9d2e: 8d df ff                     sta     E_REG
++000331 9d31: 20 b9 19                     jsr     $19b9             ;prenib monitor routine
+                           ; ********************************************************
+                           ;  NAME    : SECTORIO
+                           ;  FUNCTION: READ OR WRITE A SECTOR
+                           ;  INPUT   : IBSTRK, IBSECT, MONTIME,
+                           ;  RETURNS : CARRY CLEAR IF OK (AC=00)
+                           ;          : CARRY SET   IF ERROR (AC=ERRCODE)
+                           ;          : SEEKWAIT  ALL SETUP
+                           ;  DESTROYS: ALL REGISTERS
+                           ; ********************************************************
+                           ; 
++000334 9d34: a9 01        SECTORIO        lda     #$01
++000336 9d36: 85 d2                        sta     RECALCNT
++000338 9d38: ac da 16                     ldy     D_UNITNUM         ;ARE WE ON-TRACK?
++00033b 9d3b: ad d8 16                     lda     D_TRACK
++00033e 9d3e: d9 d9 9f                     cmp     DRVTRACK,y
++000341 9d41: f0 1a                        beq     SOUGHT
++000343 9d43: 24 d3                        bit     SEEKWAIT
++000345 9d45: 10 10                        bpl     L9D57
++000347 9d47: 46 d3                        lsr     SEEKWAIT
++000349 9d49: a9 04                        lda     #$04
++00034b 9d4b: 20 42 9f                     jsr     L9F42
++00034e 9d4e: a8                           tay
++00034f 9d4f: a9 00        SEEKDEL         lda     #$00
++000351 9d51: 20 56 f4                     jsr     MSWAIT
++000354 9d54: 88                           dey
++000355 9d55: d0 f8                        bne     SEEKDEL
+                           ; 
+                           ;  ISSUE THE SEEK:
+                           ; 
++000357 9d57: ad d8 16     L9D57           lda     D_TRACK           ;GET DESTINATION TRACK
++00035a 9d5a: 20 8f 9f                     jsr     MYSEEK2
++00035d 9d5d: a5 d4        SOUGHT          lda     IRQMASK
++00035f 9d5f: 85 8b                        sta     IMASK
++000361 9d61: a9 06                        lda     #$06
++000363 9d63: 85 8f                        sta     $8f
++000365 9d65: a9 04                        lda     #$04
++000367 9d67: 85 d1                        sta     $d1
+                           ; 
+                           ;  DELAY FOR ANY REMAINING MOTOR-UP TIME:
+                           ; 
++000369 9d69: a5 9a        MDELAY          lda     MONTIMEH
++00036b 9d6b: 10 0d                        bpl     FINDIT
++00036d 9d6d: a9 01                        lda     #$01
++00036f 9d6f: 20 42 9f                     jsr     L9F42
++000372 9d72: a9 00                        lda     #$00
++000374 9d74: 20 56 f4                     jsr     MSWAIT
++000377 9d77: 4c 69 9d                     jmp     MDELAY
+
+                           ; 
+                           ;  FIND THE DESIRED SECTOR:
+                           ; 
+                           ;  NOTE: FINDSECT RETURNS WITH
+                           ;        IRQ INHIBITED!
+                           ; 
++00037a 9d7a: 08           FINDIT          php
++00037b 9d7b: 78                           sei
++00037c 9d7c: ad ee ff                     lda     E_IER
++00037f 9d7f: 29 18                        and     #$18
++000381 9d81: 8d ee ff                     sta     E_IER
++000384 9d84: 09 80                        ora     #$80
++000386 9d86: 8d d0 9f                     sta     VBLSAVE
++000389 9d89: 28                           plp
++00038a 9d8a: 20 10 9e                     jsr     L9E10
++00038d 9d8d: b0 3b                        bcs     TRYRECAL
++00038f 9d8f: a2 60                        ldx     #$60
++000391 9d91: ad de 16                     lda     D_COMMAND
++000394 9d94: 4a                           lsr     A
++000395 9d95: 90 1d                        bcc     SIOWRITE
+                           ; ****************************************************
+                           ;  READ A SECTOR:
+                           ; 
++000397 9d97: 20 48 f1                     jsr     READ16
++00039a 9d9a: 20 c7 9f                     jsr     FIXIRQ
++00039d 9d9d: ad d0 9f                     lda     VBLSAVE
++0003a0 9da0: 8d ee ff                     sta     E_IER
++0003a3 9da3: b0 1f                        bcs     BADIO
++0003a5 9da5: ad df ff                     lda     E_REG
++0003a8 9da8: 29 7f                        and     #$7f
++0003aa 9daa: 8d df ff                     sta     E_REG
++0003ad 9dad: 20 c2 19                     jsr     $19c2             ;postnib
++0003b0 9db0: b0 14                        bcs     IORETRY
++0003b2 9db2: 90 3a                        bcc     L9DEE
+
+                           ; ******************************************************
+                           ;  WRITE A SECTOR:
+                           ; 
++0003b4 9db4: 20 16 f2     SIOWRITE        jsr     WRITE16
++0003b7 9db7: 20 c7 9f                     jsr     FIXIRQ
++0003ba 9dba: ad d0 9f                     lda     VBLSAVE
++0003bd 9dbd: 8d ee ff                     sta     E_IER
++0003c0 9dc0: 90 2c                        bcc     L9DEE
++0003c2 9dc2: 50 27                        bvc     L9DEB             ;=>GOOD WRITE
++0003c4 9dc4: 70 b4        BADIO           bvs     FINDIT            ;=>WRITE PROTECTED
++0003c6 9dc6: c6 d1        IORETRY         dec     $d1
++0003c8 9dc8: d0 b0                        bne     FINDIT
++0003ca 9dca: ad d0 9f     TRYRECAL        lda     VBLSAVE
++0003cd 9dcd: 8d ee ff                     sta     E_IER
++0003d0 9dd0: c6 d2                        dec     RECALCNT
++0003d2 9dd2: 30 14                        bmi     SIOERR
++0003d4 9dd4: 20 5e 9f                     jsr     L9F5E
++0003d7 9dd7: ac da 16                     ldy     D_UNITNUM
++0003da 9dda: ad d8 16                     lda     D_TRACK
++0003dd 9ddd: d9 d9 9f                     cmp     DRVTRACK,y
++0003e0 9de0: d0 03                        bne     NOTSAME
++0003e2 9de2: 4c 5d 9d                     jmp     SOUGHT
+
++0003e5 9de5: 4c 57 9d     NOTSAME         jmp     L9D57
+
++0003e8 9de8: a9 27        SIOERR          lda     #$27
++0003ea 9dea: 2c                           bit ▼   $2ba9
++0003eb 9deb: a9 2b        L9DEB           lda     #$2b
++0003ed 9ded: 2c                           bit ▼   a:$00a9
++0003ee 9dee: a9 00        L9DEE           lda     #$00
++0003f0 9df0: 48           L9DF0           pha
++0003f1 9df1: a9 01                        lda     #$01
++0003f3 9df3: 20 42 9f                     jsr     L9F42
++0003f6 9df6: ad df ff                     lda     E_REG
++0003f9 9df9: 29 20                        and     #$20
++0003fb 9dfb: 0d cf 9f                     ora     VBLSAVE-1
++0003fe 9dfe: 8d df ff                     sta     E_REG
++000401 9e01: 20 c7 9f                     jsr     FIXIRQ
++000404 9e04: ad e8 c0                     lda     MOTORON-1
++000407 9e07: 68                           pla
++000408 9e08: d0 02                        bne     FINDSECT
++00040a 9e0a: 18                           clc
++00040b 9e0b: 60                           rts
+
++00040c 9e0c: 38           FINDSECT        sec
++00040d 9e0d: 20 5e 1a                     jsr     $1a5e
++000410 9e10: a9 30        L9E10           lda     #$30
++000412 9e12: 85 d0                        sta     $d0
++000414 9e14: 46 d5                        lsr     $d5
++000416 9e16: a2 60        L9E16           ldx     #$60
++000418 9e18: 20 b9 f1                     jsr     RDADR16
++00041b 9e1b: b0 20                        bcs     L9E3D
++00041d 9e1d: ad d8 16                     lda     D_TRACK
++000420 9e20: c5 99                        cmp     MONTIMEL
++000422 9e22: d0 28                        bne     L9E4C
++000424 9e24: ad d9 16                     lda     D_SECTOR
++000427 9e27: c5 98                        cmp     SECT
++000429 9e29: f0 26                        beq     L9E51
++00042b 9e2b: a5 d5                        lda     $d5
++00042d 9e2d: 30 0e                        bmi     L9E3D
++00042f 9e2f: ad d9 16                     lda     D_SECTOR
++000432 9e32: 38                           sec
++000433 9e33: 66 d5                        ror     $d5
++000435 9e35: e5 98                        sbc     SECT
++000437 9e37: 29 0f                        and     #$0f
++000439 9e39: 4a                           lsr     A
++00043a 9e3a: 20 42 9f                     jsr     L9F42
++00043d 9e3d: 20 c7 9f     L9E3D           jsr     FIXIRQ
++000440 9e40: c6 d0                        dec     $d0
++000442 9e42: f0 08                        beq     L9E4C
++000444 9e44: a0 c8                        ldy     #$c8
++000446 9e46: 88           L9E46           dey
++000447 9e47: d0 fd                        bne     L9E46
++000449 9e49: 4c 16 9e                     jmp     L9E16
+
++00044c 9e4c: 20 c7 9f     L9E4C           jsr     FIXIRQ
++00044f 9e4f: 38                           sec
++000450 9e50: 24                           bit ▼   $18
++000451 9e51: 18           L9E51           clc
++000452 9e52: a9 00                        lda     #$00
++000454 9e54: 85 9a                        sta     MONTIMEH
++000456 9e56: 60                           rts
+
++000457 9e57: ac da 16     UNITSEL         ldy     D_UNITNUM         ;get drivenum
++00045a 9e5a: 46 d3                        lsr     SEEKWAIT
++00045c 9e5c: 85 99                        sta     MONTIMEL
++00045e 9e5e: 85 9a                        sta     MONTIMEH
++000460 9e60: 20 14 9f                     jsr     L9F14
++000463 9e63: d0 11                        bne     SPINNING
++000465 9e65: ae d5 c0                     ldx     SETEN1INT
++000468 9e68: a9 00                        lda     #$00
++00046a 9e6a: 8d d1 9f                     sta     DRIVESEL
++00046d 9e6d: 8d d5 9f                     sta     L9FD5
++000470 9e70: 20 00 9f                     jsr     L9F00
++000473 9e73: 4c a5 9e                     jmp     SETTIME           ;(SETTIME) go setup motor delay
+
++000476 9e76: b9 d1 9f     SPINNING        lda     DRIVESEL,y
++000479 9e79: d0 1a                        bne     GOFORIT
++00047b 9e7b: c0 00                        cpy     #$00
++00047d 9e7d: f0 26                        beq     SETTIME
++00047f 9e7f: a9 00                        lda     #$00
++000481 9e81: 0d d4 9f                     ora     DRIVESEL+3
++000484 9e84: 0d d3 9f                     ora     DRIVESEL+2
++000487 9e87: 0d d2 9f                     ora     DRIVESEL+1
++00048a 9e8a: f0 19                        beq     SETTIME
++00048c 9e8c: 38                           sec
++00048d 9e8d: 66 d3                        ror     SEEKWAIT
++00048f 9e8f: 20 00 9f                     jsr     L9F00
++000492 9e92: 4c a5 9e                     jmp     SETTIME
+
++000495 9e95: ae de 16     GOFORIT         ldx     D_COMMAND
++000498 9e98: bd dc 9f                     lda     DRVTRACK+3,x
++00049b 9e9b: 38                           sec
++00049c 9e9c: f9 d5 9f                     sbc     L9FD5,y
++00049f 9e9f: b0 0f                        bcs     SELECT
++0004a1 9ea1: a9 00                        lda     #$00
++0004a3 9ea3: f0 0b                        beq     SELECT
+
++0004a5 9ea5: a9 00        SETTIME         lda     #$00
++0004a7 9ea7: 99 d5 9f                     sta     L9FD5,y
++0004aa 9eaa: ae de 16                     ldx     D_COMMAND
++0004ad 9ead: bd dc 9f                     lda     DRVTRACK+3,x
++0004b0 9eb0: 49 ff        SELECT          eor     #$ff
++0004b2 9eb2: 18                           clc
++0004b3 9eb3: 69 01                        adc     #$01
++0004b5 9eb5: 85 9a                        sta     MONTIMEH
++0004b7 9eb7: c0 01                        cpy     #$01
++0004b9 9eb9: b0 09                        bcs     SELEXT
++0004bb 9ebb: ad ea c0                     lda     IS_EXT-1
++0004be 9ebe: ad d4 c0                     lda     CLREN1INT
++0004c1 9ec1: 4c e5 9e                     jmp     UNITRET           ;=>ALL DONE!
+
++0004c4 9ec4: ad eb c0     SELEXT          lda     IS_EXT            ;I/O SELECT EXTERNAL
++0004c7 9ec7: c0 02                        cpy     #$02              ;ARE WE 2, 3, OR 4 ?
++0004c9 9ec9: b0 09                        bcs     NOTD2
++0004cb 9ecb: ad d2 c0                     lda     MD_EXT1
++0004ce 9ece: ad d1 c0                     lda     MS_EXT2
++0004d1 9ed1: 4c e5 9e                     jmp     UNITRET           ;=>ALL DONE!
+
++0004d4 9ed4: d0 09        NOTD2           bne     ISD4
++0004d6 9ed6: ad d3 c0                     lda     MS_EXT1
++0004d9 9ed9: ad d0 c0                     lda     CLRDSA0
++0004dc 9edc: 4c e5 9e                     jmp     UNITRET           ;=>ALL DONE!
+
++0004df 9edf: ad d3 c0     ISD4            lda     MS_EXT1           ;MOTOR SELECT
++0004e2 9ee2: ad d1 c0                     lda     MS_EXT2           ; ONLY .D4
++0004e5 9ee5: ad e9 c0     UNITRET         lda     MOTORON           ;PROVIDE MOTOR POWER
++0004e8 9ee8: a9 01                        lda     #$01              ;SAY WE'VE SELECTED
++0004ea 9eea: 99 d1 9f                     sta     DRIVESEL,y        ; THIS DRIVE
++0004ed 9eed: a5 9a                        lda     MONTIMEH
++0004ef 9eef: 10 22                        bpl     L9F13
++0004f1 9ef1: a0 05                        ldy     #$05
++0004f3 9ef3: a9 64        L9EF3           lda     #$64
++0004f5 9ef5: 20 56 f4                     jsr     MSWAIT
++0004f8 9ef8: 88                           dey
++0004f9 9ef9: d0 f8                        bne     L9EF3
++0004fb 9efb: a9 02                        lda     #$02
++0004fd 9efd: 4c 42 9f                     jmp     L9F42
+
++000500 9f00: ad d2 c0     L9F00           lda     MD_EXT1
++000503 9f03: ad d0 c0                     lda     CLRDSA0
++000506 9f06: a2 03                        ldx     #$03
++000508 9f08: a9 00                        lda     #$00
++00050a 9f0a: 9d d1 9f     L9F0A           sta     DRIVESEL,x
++00050d 9f0d: 9d d5 9f                     sta     L9FD5,x
++000510 9f10: ca                           dex
++000511 9f11: d0 f7                        bne     L9F0A
++000513 9f13: 60           L9F13           rts
+
++000514 9f14: a2 03        L9F14           ldx     #$03
++000516 9f16: ad ec c0     L9F16           lda     $c0ec
++000519 9f19: cd ec c0                     cmp     $c0ec
++00051c 9f1c: d0 1f                        bne     L9F3D
++00051e 9f1e: cd ec c0                     cmp     $c0ec
++000521 9f21: d0 1a                        bne     L9F3D
++000523 9f23: cd ec c0                     cmp     $c0ec
++000526 9f26: d0 15                        bne     L9F3D
++000528 9f28: cd ec c0                     cmp     $c0ec
++00052b 9f2b: d0 10                        bne     L9F3D
++00052d 9f2d: cd ec c0                     cmp     $c0ec
++000530 9f30: d0 0b                        bne     L9F3D
++000532 9f32: cd ec c0                     cmp     $c0ec
++000535 9f35: d0 06                        bne     L9F3D
++000537 9f37: cd ec c0                     cmp     $c0ec
++00053a 9f3a: d0 01                        bne     L9F3D
++00053c 9f3c: 60                           rts
+
++00053d 9f3d: ca           L9F3D           dex
++00053e 9f3e: d0 d6                        bne     L9F16
++000540 9f40: ca                           dex
++000541 9f41: 60                           rts
+
++000542 9f42: 48           L9F42           pha
++000543 9f43: a0 04                        ldy     #$04
++000545 9f45: b9 d0 9f     L9F45           lda     VBLSAVE,y
++000548 9f48: f0 0f                        beq     L9F59
++00054a 9f4a: 68                           pla
++00054b 9f4b: 48                           pha
++00054c 9f4c: 18                           clc
++00054d 9f4d: 79 d4 9f                     adc     DRIVESEL+3,y
++000550 9f50: c9 29                        cmp     #$29
++000552 9f52: 90 02                        bcc     L9F56
++000554 9f54: a9 28                        lda     #$28
++000556 9f56: 99 d4 9f     L9F56           sta     DRIVESEL+3,y
++000559 9f59: 88           L9F59           dey
++00055a 9f5a: d0 e9                        bne     L9F45
++00055c 9f5c: 68                           pla
++00055d 9f5d: 60                           rts
+
++00055e 9f5e: a9 02        L9F5E           lda     #$02
++000560 9f60: 48           L9F60           pha
++000561 9f61: a2 60                        ldx     #$60
++000563 9f63: 20 b9 f1                     jsr     RDADR16
++000566 9f66: 90 09                        bcc     L9F71
++000568 9f68: 20 b9 f1                     jsr     RDADR16
++00056b 9f6b: 90 04                        bcc     L9F71
++00056d 9f6d: a9 30                        lda     #$30
++00056f 9f6f: d0 05                        bne     L9F76
+
++000571 9f71: a5 99        L9F71           lda     MONTIMEL
++000573 9f73: 18                           clc
++000574 9f74: 69 03                        adc     #$03
++000576 9f76: ac da 16     L9F76           ldy     D_UNITNUM
++000579 9f79: 99 d9 9f                     sta     DRVTRACK,y
++00057c 9f7c: 20 c7 9f                     jsr     FIXIRQ
++00057f 9f7f: a9 00                        lda     #$00
++000581 9f81: 85 9a                        sta     MONTIMEH
++000583 9f83: 85 99                        sta     MONTIMEL
++000585 9f85: 20 8f 9f                     jsr     MYSEEK2
++000588 9f88: 68                           pla
++000589 9f89: a8                           tay
++00058a 9f8a: 88                           dey
++00058b 9f8b: 98                           tya
++00058c 9f8c: d0 d2                        bne     L9F60
++00058e 9f8e: 60                           rts
+
++00058f 9f8f: 85 9e        MYSEEK2         sta     TRKN
++000591 9f91: ac da 16                     ldy     D_UNITNUM
++000594 9f94: b9 d9 9f                     lda     DRVTRACK,y
++000597 9f97: 0a                           asl     A
++000598 9f98: 85 8c                        sta     CURTRK
++00059a 9f9a: a2 60                        ldx     #$60
++00059c 9f9c: a5 9a                        lda     MONTIMEH
++00059e 9f9e: 85 d5                        sta     $d5
++0005a0 9fa0: 08                           php
++0005a1 9fa1: 78                           sei
++0005a2 9fa2: ad ee ff                     lda     E_IER
++0005a5 9fa5: 29 18                        and     #$18
++0005a7 9fa7: 8d d0 9f                     sta     VBLSAVE
++0005aa 9faa: 8d ee ff                     sta     E_IER
++0005ad 9fad: 28                           plp
++0005ae 9fae: a5 9e                        lda     TRKN
++0005b0 9fb0: 99 d9 9f                     sta     DRVTRACK,y
++0005b3 9fb3: 0a                           asl     A
++0005b4 9fb4: 20 00 f4                     jsr     SEEK
++0005b7 9fb7: ad d0 9f                     lda     VBLSAVE
++0005ba 9fba: 09 80                        ora     #$80
++0005bc 9fbc: 8d ee ff                     sta     E_IER
++0005bf 9fbf: a5 9a                        lda     MONTIMEH
++0005c1 9fc1: 38                           sec
++0005c2 9fc2: e5 d5                        sbc     $d5
++0005c4 9fc4: 4c 42 9f                     jmp     L9F42
+
+                           ; **************************************************
+                           ;  NAME    : FIXIRQ
+                           ;  FUNCTION: ENABLE IRQ IF APPROPRIATE
+                           ;  INPUT   : NONE
+                           ;  DESTROYS: NOTHING
+                           ; **************************************************
++0005c7 9fc7: 48           FIXIRQ          pha
++0005c8 9fc8: a5 d4                        lda     IRQMASK           ;SHOULD IRQ BE ENABLED?
++0005ca 9fca: 30 01                        bmi     L9FCD             ;=>NO, LEAVE IT ALONE
++0005cc 9fcc: 58                           cli                       ;ENABLE IRQ
++0005cd 9fcd: 68           L9FCD           pla
++0005ce 9fce: 60                           rts
+
++0005cf 9fcf: 00                           .dd1    $00
++0005d0 9fd0: 00           VBLSAVE         .dd1    $00
++0005d1 9fd1: 00           DRIVESEL        .dd1    $00
++0005d2 9fd2: 00                           .dd1    $00
++0005d3 9fd3: 00                           .dd1    $00
++0005d4 9fd4: 00                           .dd1    $00
++0005d5 9fd5: 00           L9FD5           .dd1    $00
++0005d6 9fd6: 00                           .dd1    $00
++0005d7 9fd7: 00                           .dd1    $00
++0005d8 9fd8: 00                           .dd1    $00
++0005d9 9fd9: 00           DRVTRACK        .dd1    $00
++0005da 9fda: 00                           .dd1    $00
++0005db 9fdb: 00                           .dd1    $00
++0005dc 9fdc: 00                           .dd1    $00
++0005dd 9fdd: 08                           .dd1    $08
++0005de 9fde: 27                           .dd1    $27
++0005df 9fdf: 00 00 00 00+                 .fill   33,$00

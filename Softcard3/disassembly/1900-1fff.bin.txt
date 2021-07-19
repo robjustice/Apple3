@@ -1,0 +1,720 @@
+                           ; 6502bench SourceGen v1.7.2-dev1
+                           KBD             .eq     $c000             ;last key pressed (KA Data)
+                           SPKRIII         .eq     $c040             ;RW beeps speaker (Apple /// type)
+                           JOYRDY          .eq     $c066             ;Read PDLOT (A/D Ramp Stop)
+                           PHASOFF         .eq     $c080
+                           ACIASTAT        .eq     $c0f1             ;ACIA STATUS REGISTER
+                           PRENIB16        .eq     $f2c4
+                           POSTNIB16       .eq     $f30f
+                           Z_REG           .eq     $ffd0             ;zero page register
+                           D_IFR           .eq     $ffdd
+                           D_IER           .eq     $ffde
+                           E_REG           .eq     $ffdf             ;environment register
+                           E_IFR           .eq     $ffed
+                           E_IER           .eq     $ffee
+                           B_REG           .eq     $ffef             ;bank switch register
+
+                                           .org    $1900
+                           ; Recreated SOS globals
++000000 1900: 08                           .dd1    $08
++000001 1901: 02           L1901           .dd1    $02
++000002 1902: 00                           .dd1    $00
++000003 1903: 00                           .dd1    $00
++000004 1904: 00                           .dd1    $00
++000005 1905: 00                           .dd1    $00
++000006 1906: 00           L1906           .dd1    $00
++000007 1907: 80                           .dd1    $80
++000008 1908: 00           L1908           .dd1    $00
++000009 1909: 00                           .dd1    $00
++00000a 190a: 00                           .dd1    $00
++00000b 190b: 00                           .dd1    $00
++00000c 190c: 00                           .dd1    $00
++00000d 190d: 00                           .dd1    $00
++00000e 190e: 00                           .dd1    $00
++00000f 190f: 00                           .dd1    $00
+
+                           ; Dummy SOS Jump Table
++000010 1910: 4c 31 19                     jmp     L1931             ;KEYBOARD NMI VECTOR
+
++000013 1913: 4c 05 1e                     jmp     L1E05             ;ALLOCATE A SIR
+
++000016 1916: 4c 5e 1e                     jmp     L1E5E             ;DEALLOCATE A SIR
+
++000019 1919: 4c 31 19                     jmp     L1931             ;DISABLE NMI
+
++00001c 191c: 4c 31 19                     jmp     L1931             ;ENABLE NMI
+
++00001f 191f: 4c d1 1e                     jmp     L1ED1             ;QUEUE AN EVENT
+
++000022 1922: 4c b8 1e                     jmp     L1EB8             ;SELECT I/O EXPANSION ROM
+
++000025 1925: 4c 69 1a     L1925           jmp     L1A69             ;SYSTEM DEATH
+
++000028 1928: 4c 5e 1a                     jmp     L1A5E             ;SOS ERROR
+
++00002b 192b: 4c 31 19                     jmp     L1931             ;REQUEST BUFFER
+
++00002e 192e: 4c 31 19                     jmp     L1931             ;GET BUFFER'S ADDRESS
+
++000031 1931: a9 20        L1931           lda     #$20              ;RELEASE BUFFER
++000033 1933: d0 f0                        bne     L1925
+
++000035 1935: 00 00 00 00+                 .fill   75,$00
+
++000080 1980: 4c f0 19                     jmp     L19F0
+
++000083 1983: 4c 9e 1a                     jmp     L1A9E
+
++000086 1986: 4c 21 1b                     jmp     L1B21
+
++000089 1989: 4c b0 19                     jmp     L19B0
+
++00008c 198c: 00 00 00 00+                 .fill   36,$00
+
++0000b0 19b0: 20 e9 19     L19B0           jsr     L19E9
++0000b3 19b3: 20 c5 9c                     jsr     $9cc5             ;disk driver
++0000b6 19b6: 4c e3 19                     jmp     L19E3
+
++0000b9 19b9: 20 e3 19                     jsr     L19E3
++0000bc 19bc: 20 c4 f2                     jsr     PRENIB16
++0000bf 19bf: 4c e9 19                     jmp     L19E9
+
++0000c2 19c2: 20 e3 19                     jsr     L19E3
++0000c5 19c5: 20 0f f3                     jsr     POSTNIB16
++0000c8 19c8: 4c e9 19                     jmp     L19E9
+
++0000cb 19cb: 20 e9 19                     jsr     L19E9
++0000ce 19ce: 20 f5 9a                     jsr     $9af5
++0000d1 19d1: 4c e3 19                     jmp     L19E3
+
++0000d4 19d4: 20 e9 19                     jsr     L19E9
++0000d7 19d7: 20 00 9a                     jsr     $9a00
++0000da 19da: 4c e3 19                     jmp     L19E3
+
++0000dd 19dd: 20 e9 19                     jsr     L19E9
++0000e0 19e0: 20 bc 9b                     jsr     $9bbc
++0000e3 19e3: a0 01        L19E3           ldy     #$01
++0000e5 19e5: 8c ef ff                     sty     B_REG
++0000e8 19e8: 60                           rts
+
++0000e9 19e9: ac 01 19     L19E9           ldy     L1901
++0000ec 19ec: 8c ef ff                     sty     B_REG
++0000ef 19ef: 60                           rts
+
+                           ; 
+                           ; Handover to Z80 routine
+                           ; 
++0000f0 19f0: 8d 98 16     L19F0           sta     $1698             ;save 6502 state
++0000f3 19f3: 8e 99 16                     stx     $1699
++0000f6 19f6: 8c 9a 16                     sty     $169a
++0000f9 19f9: 08                           php
++0000fa 19fa: 68                           pla
++0000fb 19fb: 8d 9b 16                     sta     $169b
++0000fe 19fe: ba                           tsx
++0000ff 19ff: 8e 9c 16                     stx     $169c
++000102 1a02: a9 00        L1A02           lda     #$00              ;zero page back to 0
++000104 1a04: 8d d0 ff                     sta     Z_REG
++000107 1a07: ad 94 16                     lda     $1694             ;set bank for z80
++00010a 1a0a: 8d ef ff                     sta     B_REG
++00010d 1a0d: ad df ff                     lda     E_REG
++000110 1a10: 09 c4                        ora     #$c4              ;enable Cxxx I/O
++000112 1a12: 8d df ff                     sta     E_REG
++000115 1a15: a2 10                        ldx     #$10              ;enable z80 fffx decoding switch
++000117 1a17: 8e 80 c0                     stx     PHASOFF           ;updated with slot during init?
++00011a 1a1a: 29 be                        and     #$be              ;10111110 - 1M,no IO,vid,nmi,wr prot,prim,primrom,norom
++00011c 1a1c: 8d df ff                     sta     E_REG
++00011f 1a1f: 8d 92 16                     sta     $1692
++000122 1a22: 78                           sei                       ;disable 6502 interrupts
++000123 1a23: ad fc ff                     lda     $fffc             ;switch to Z80
++000126 1a26: ad ef ff     L1A26           lda     B_REG             ;come back to here when its 6502's turn
++000129 1a29: 10 28                        bpl     L1A53             ;branch if we have an Apple /// IRQ
++00012b 1a2b: ad 92 16                     lda     $1692             ;interrupt or z80 should clear this???
++00012e 1a2e: d0 f6                        bne     L1A26
++000130 1a30: a9 18        L1A30           lda     #$18              ;back to $18 zero page
++000132 1a32: 8d d0 ff                     sta     Z_REG
++000135 1a35: ad df ff                     lda     E_REG
++000138 1a38: 09 40                        ora     #$40
++00013a 1a3a: 29 7f                        and     #$7f
++00013c 1a3c: 8d df ff                     sta     E_REG
++00013f 1a3f: ad 9b 16                     lda     $169b             ;restore 6502 state
++000142 1a42: 48                           pha
++000143 1a43: ad 98 16                     lda     $1698
++000146 1a46: ae 99 16                     ldx     $1699
++000149 1a49: ac 9a 16                     ldy     $169a
++00014c 1a4c: 28                           plp
++00014d 1a4d: 20 8f 16                     jsr     $168f             ;go service the I/O
++000150 1a50: 4c f0 19                     jmp     L19F0             ;done, go back and switch to z80
+
+                           ; interrupt handler?
++000153 1a53: ad fd ff     L1A53           lda     $fffd             ;disable supervision timer???
++000156 1a56: ad 92 16                     lda     $1692             ;  to allow 6502 interrupt handler to finish
++000159 1a59: 58                           cli                       ;enable 6502 interrupts, pending one will fire
++00015a 1a5a: d0 a6                        bne     L1A02
++00015c 1a5c: f0 d2                        beq     L1A30
+
++00015e 1a5e: 8d 08 19     L1A5E           sta     L1908
++000161 1a61: 68                           pla
++000162 1a62: 68                           pla
++000163 1a63: ad 08 19                     lda     L1908
++000166 1a66: c9 01                        cmp     #$01
++000168 1a68: 60                           rts
+
++000169 1a69: 8d 08 19     L1A69           sta     L1908
++00016c 1a6c: a0 77                        ldy     #$77
++00016e 1a6e: 8c df ff                     sty     E_REG
++000171 1a71: 2c 40 c0                     bit     SPKRIII
++000174 1a74: 48                           pha
++000175 1a75: 4a                           lsr     A
++000176 1a76: 4a                           lsr     A
++000177 1a77: 4a                           lsr     A
++000178 1a78: 4a                           lsr     A
++000179 1a79: a0 00                        ldy     #$00
++00017b 1a7b: 20 8f 1a                     jsr     L1A8F
++00017e 1a7e: 68                           pla
++00017f 1a7f: 20 8f 1a                     jsr     L1A8F
++000182 1a82: a9 53                        lda     #$53
++000184 1a84: 8d ba 05                     sta     $05ba
++000187 1a87: a9 44                        lda     #$44
++000189 1a89: 8d bb 05                     sta     $05bb
++00018c 1a8c: 4c 8c 1a     L1A8C           jmp     L1A8C
+
++00018f 1a8f: 29 0f        L1A8F           and     #$0f
++000191 1a91: 09 30                        ora     #$30
++000193 1a93: c9 3a                        cmp     #$3a
++000195 1a95: 90 02                        bcc     L1A99
++000197 1a97: 69 06                        adc     #$06
++000199 1a99: 99 bc 05     L1A99           sta     $05bc,y
++00019c 1a9c: c8                           iny
++00019d 1a9d: 60                           rts
+
++00019e 1a9e: a9 77        L1A9E           lda     #$77
++0001a0 1aa0: 8d df ff                     sta     E_REG
++0001a3 1aa3: a9 01                        lda     #$01
++0001a5 1aa5: 8d 00 c0                     sta     KBD
++0001a8 1aa8: 4c f0 19                     jmp     L19F0
+
++0001ab 1aab: 00 00 00 00+ L1AAB           .fill   14,$00
++0001b9 1ab9: 00 00 00 00+ L1AB9           .fill   15,$00
++0001c8 1ac8: 00 00 00 00+ L1AC8           .fill   15,$00
++0001d7 1ad7: 00 00 00 00+ L1AD7           .fill   15,$00
++0001e6 1ae6: 00 00 00 00+ L1AE6           .fill   16,$00
++0001f6 1af6: 80 80 80 80+ L1AF6           .fill   16,$80
+
++000206 1b06: 20 82 1b                     jsr     L1B82
++000209 1b09: ad a1 16     L1B09           lda     $16a1
++00020c 1b0c: aa                           tax
++00020d 1b0d: 0a                           asl     A
++00020e 1b0e: 0a                           asl     A
++00020f 1b0f: 85 ba                        sta     $ba
++000211 1b11: ad 4d fe                     lda     $fe4d
++000214 1b14: 2a                           rol     A
++000215 1b15: 2a                           rol     A
++000216 1b16: 6a           L1B16           ror     A
++000217 1b17: 6a                           ror     A
++000218 1b18: ca                           dex
++000219 1b19: 10 fb                        bpl     L1B16
++00021b 1b1b: 20 d3 1b                     jsr     L1BD3
++00021e 1b1e: 4c 24 1b                     jmp     L1B24
+
++000221 1b21: ac a1 16     L1B21           ldy     $16a1
++000224 1b24: ae a0 16     L1B24           ldx     $16a0
++000227 1b27: 86 c0        L1B27           stx     $c0
++000229 1b29: a9 00                        lda     #$00
++00022b 1b2b: 8d 08 19                     sta     L1908
++00022e 1b2e: b9 f6 1a                     lda     L1AF6,y
++000231 1b31: 18                           clc
++000232 1b32: 30 33                        bmi     L1B67
++000234 1b34: 85 c1                        sta     $c1
++000236 1b36: a2 05                        ldx     #$05
++000238 1b38: bd a2 16     L1B38           lda     $16a2,x
++00023b 1b3b: 95 c2                        sta     $c2,x
++00023d 1b3d: ca                           dex
++00023e 1b3e: 10 f8                        bpl     L1B38
++000240 1b40: ad ef ff                     lda     B_REG
++000243 1b43: 48                           pha
++000244 1b44: 20 68 1b                     jsr     L1B68
++000247 1b47: ad df ff                     lda     E_REG
++00024a 1b4a: 29 bf                        and     #$bf
++00024c 1b4c: 8d df ff                     sta     E_REG
++00024f 1b4f: a2 01                        ldx     #$01
++000251 1b51: b5 c3        L1B51           lda     $c3,x
++000253 1b53: 9d a3 16                     sta     $16a3,x
++000256 1b56: b5 c8                        lda     $c8,x
++000258 1b58: 9d a8 16                     sta     $16a8,x
++00025b 1b5b: ca                           dex
++00025c 1b5c: 10 f3                        bpl     L1B51
++00025e 1b5e: 68                           pla
++00025f 1b5f: 8d ef ff                     sta     B_REG
++000262 1b62: ad 08 19                     lda     L1908
++000265 1b65: c9 01                        cmp     #$01
++000267 1b67: 60           L1B67           rts
+
++000268 1b68: b9 e6 1a     L1B68           lda     L1AE6,y
++00026b 1b6b: 8d ef ff                     sta     B_REG
++00026e 1b6e: b9 d7 1a                     lda     L1AD7,y
++000271 1b71: 48                           pha
++000272 1b72: b9 c8 1a                     lda     L1AC8,y
++000275 1b75: 48                           pha
++000276 1b76: ad df ff                     lda     E_REG
++000279 1b79: 09 40                        ora     #$40
++00027b 1b7b: 8d df ff                     sta     E_REG
++00027e 1b7e: 60                           rts
+
++00027f 1b7f: 20 09 1b                     jsr     L1B09
++000282 1b82: ad 03 20     L1B82           lda     $2003
++000285 1b85: cd 4d fe                     cmp     $fe4d
++000288 1b88: f0 48                        beq     L1BD2
++00028a 1b8a: 85 b9                        sta     $b9
++00028c 1b8c: ac 4d fe                     ldy     $fe4d
++00028f 1b8f: 84 b8                        sty     $b8
++000291 1b91: 8d 4d fe                     sta     $fe4d
++000294 1b94: a9 00                        lda     #$00
++000296 1b96: 85 ba        L1B96           sta     $ba
++000298 1b98: a5 b9                        lda     $b9
++00029a 1b9a: 20 d3 1b                     jsr     L1BD3
++00029d 1b9d: 84 bb                        sty     $bb
++00029f 1b9f: a5 b8                        lda     $b8
++0002a1 1ba1: 20 d3 1b                     jsr     L1BD3
++0002a4 1ba4: c4 bb                        cpy     $bb
++0002a6 1ba6: f0 19                        beq     L1BC1
++0002a8 1ba8: aa                           tax
++0002a9 1ba9: de c8 16                     dec     $16c8,x
++0002ac 1bac: 10 05                        bpl     L1BB3
++0002ae 1bae: a2 07                        ldx     #$07
++0002b0 1bb0: 20 27 1b                     jsr     L1B27
++0002b3 1bb3: a5 bb        L1BB3           lda     $bb
++0002b5 1bb5: aa                           tax
++0002b6 1bb6: fe c8 16                     inc     $16c8,x
++0002b9 1bb9: d0 06                        bne     L1BC1
++0002bb 1bbb: a8                           tay
++0002bc 1bbc: a2 06                        ldx     #$06
++0002be 1bbe: 20 27 1b                     jsr     L1B27
++0002c1 1bc1: 46 b9        L1BC1           lsr     $b9
++0002c3 1bc3: 46 b9                        lsr     $b9
++0002c5 1bc5: 46 b8                        lsr     $b8
++0002c7 1bc7: 46 b8                        lsr     $b8
++0002c9 1bc9: a5 ba                        lda     $ba
++0002cb 1bcb: 18                           clc
++0002cc 1bcc: 69 04                        adc     #$04
++0002ce 1bce: c9 10                        cmp     #$10
++0002d0 1bd0: d0 c4                        bne     L1B96
++0002d2 1bd2: 60           L1BD2           rts
+
++0002d3 1bd3: 29 03        L1BD3           and     #$03
++0002d5 1bd5: 05 ba                        ora     $ba
++0002d7 1bd7: a8                           tay
++0002d8 1bd8: b9 b0 16                     lda     $16b0,y
++0002db 1bdb: a8                           tay
++0002dc 1bdc: 60                           rts
+
++0002dd 1bdd: e0 14                        cpx     #$14
++0002df 1bdf: b0 0a                        bcs     L1BEB
++0002e1 1be1: bc b0 16                     ldy     $16b0,x
++0002e4 1be4: 30 07                        bmi     L1BED
++0002e6 1be6: b9 f6 1a                     lda     L1AF6,y
++0002e9 1be9: 10 06                        bpl     L1BF1
++0002eb 1beb: a0 00        L1BEB           ldy     #$00
++0002ed 1bed: 8c e0 16     L1BED           sty     $16e0
++0002f0 1bf0: 60                           rts
+
++0002f1 1bf1: b9 aa 1a     L1BF1           lda     L1AAB-1,y
++0002f4 1bf4: 85 d0                        sta     $d0
++0002f6 1bf6: b9 b9 1a                     lda     L1AB9,y
++0002f9 1bf9: 85 d1                        sta     $d1
++0002fb 1bfb: b9 e6 1a                     lda     L1AE6,y
++0002fe 1bfe: 8d ef ff                     sta     B_REG
++000301 1c01: a0 1b                        ldy     #$1b
++000303 1c03: b1 d0        L1C03           lda     ($d0),y
++000305 1c05: 99 e0 16                     sta     $16e0,y
++000308 1c08: 88                           dey
++000309 1c09: 10 f8                        bpl     L1C03
++00030b 1c0b: 60                           rts
+
++00030c 1c0c: f8           L1C0C           .dd1    $f8
++00030d 1c0d: 00           L1C0D           .dd1    $00
++00030e 1c0e: 00 00 00 00+ L1C0E           .fill   10,$00
++000318 1c18: 80                           .dd1    $80
++000319 1c19: 00 00 00 00+                 .fill   13,$00
++000326 1c26: 00 00 00 00+ L1C26           .fill   24,$00
++00033e 1c3e: 00 00 00 00+ L1C3E           .fill   24,$00
++000356 1c56: 00 00 00 00+ L1C56           .fill   24,$00
++00036e 1c6e: 00           L1C6E           .dd1    $00
++00036f 1c6f: 00           L1C6F           .dd1    $00
++000370 1c70: 00           L1C70           .dd1    $00
++000371 1c71: 00           L1C71           .dd1    $00
++000372 1c72: 00           L1C72           .dd1    $00
+
+                           ; 6502 interrupt handler
+                           ; 
+                           ; looks copied from sos
+                           ; 
++000373 1c73: 48                           pha
++000374 1c74: 8a                           txa
++000375 1c75: 48                           pha
++000376 1c76: 98                           tya
++000377 1c77: 48                           pha
++000378 1c78: ba                           tsx
++000379 1c79: e0 fa                        cpx     #$fa
++00037b 1c7b: 90 05                        bcc     L1C82
++00037d 1c7d: a9 06                        lda     #$06
++00037f 1c7f: 20 69 1a                     jsr     L1A69
++000382 1c82: bc 04 01     L1C82           ldy     $0104,x
++000385 1c85: d8                           cld
++000386 1c86: ad df ff                     lda     E_REG
++000389 1c89: aa                           tax
++00038a 1c8a: 29 30                        and     #$30
++00038c 1c8c: 09 44                        ora     #$44
++00038e 1c8e: 8d df ff                     sta     E_REG
++000391 1c91: 8a                           txa
++000392 1c92: 48                           pha
++000393 1c93: ad d0 ff                     lda     Z_REG
++000396 1c96: 48                           pha
++000397 1c97: ad ef ff                     lda     B_REG
++00039a 1c9a: 48                           pha
++00039b 1c9b: ad 0d 1c                     lda     L1C0D
++00039e 1c9e: 48                           pha
++00039f 1c9f: 2c ff cf                     bit     $cfff
++0003a2 1ca2: 2c 20 c0                     bit     $c020
++0003a5 1ca5: a9 00                        lda     #$00
++0003a7 1ca7: 8d 0d 1c                     sta     L1C0D
++0003aa 1caa: 98                           tya
++0003ab 1cab: 29 10        L1CAB           and     #$10
++0003ad 1cad: f0 05                        beq     L1CB4
++0003af 1caf: a9 01                        lda     #$01
++0003b1 1cb1: 20 69 1a                     jsr     L1A69
++0003b4 1cb4: 2c ef ff     L1CB4           bit     B_REG
++0003b7 1cb7: 10 03                        bpl     L1CBC
++0003b9 1cb9: 4c 8e 1d                     jmp     L1D8E
+
++0003bc 1cbc: a9 00        L1CBC           lda     #$00              ;SET INTERRUPT ZERO PAGE
++0003be 1cbe: 8d d0 ff                     sta     Z_REG
++0003c1 1cc1: ad df ff                     lda     E_REG
++0003c4 1cc4: 09 80                        ora     #$80
++0003c6 1cc6: 8d df ff                     sta     E_REG
++0003c9 1cc9: 29 7f                        and     #$7f
++0003cb 1ccb: a2 01                        ldx     #$01
++0003cd 1ccd: ac f1 c0                     ldy     ACIASTAT          ;ANY INTERRUPT ON ACIA?
++0003d0 1cd0: 8d df ff                     sta     E_REG
++0003d3 1cd3: 30 59                        bmi     L1D2E
++0003d5 1cd5: ad ed ff                     lda     E_IFR             ;ANY INTERRUPT ON E-6522?
++0003d8 1cd8: 10 10                        bpl     L1CEA             ; No
++0003da 1cda: 2d ee ff                     and     E_IER
++0003dd 1cdd: a0 07                        ldy     #$07
++0003df 1cdf: a2 02                        ldx     #$02
++0003e1 1ce1: 4a           L1CE1           lsr     A                 ;CHECK FLAG BITS
++0003e2 1ce2: b0 4a                        bcs     L1D2E
++0003e4 1ce4: e8                           inx
++0003e5 1ce5: 88                           dey
++0003e6 1ce6: d0 f9                        bne     L1CE1
++0003e8 1ce8: f0 18                        beq     L1D02
+
++0003ea 1cea: ad dd ff     L1CEA           lda     D_IFR             ;ANY INTERRUPT ON D-6522?
++0003ed 1ced: 10 13                        bpl     L1D02
++0003ef 1cef: 2d de ff                     and     D_IER
++0003f2 1cf2: 2c 73 1d                     bit     L1D72+1           ;ANY SLOT INTERRUPT?
++0003f5 1cf5: d0 0f                        bne     L1D06             ; YES
++0003f7 1cf7: a0 07                        ldy     #$07
++0003f9 1cf9: a2 09                        ldx     #$09
++0003fb 1cfb: 4a           L1CFB           lsr     A
++0003fc 1cfc: b0 30                        bcs     L1D2E
++0003fe 1cfe: e8                           inx
++0003ff 1cff: 88                           dey
++000400 1d00: d0 f9                        bne     L1CFB
++000402 1d02: a2 10        L1D02           ldx     #$10
++000404 1d04: d0 1e                        bne     L1D24
+
++000406 1d06: a2 11        L1D06           ldx     #$11
++000408 1d08: 2c 65 c0                     bit     JOYRDY-1
++00040b 1d0b: 10 21                        bpl     L1D2E
++00040d 1d0d: e8                           inx
++00040e 1d0e: 2c 64 c0                     bit     $c064
++000411 1d11: 10 1b                        bpl     L1D2E
++000413 1d13: ad ef ff                     lda     B_REG
++000416 1d16: e8                           inx
++000417 1d17: 2c a5 1d                     bit     L1DA4+1
++00041a 1d1a: f0 12                        beq     L1D2E
++00041c 1d1c: e8                           inx
++00041d 1d1d: 2c ac 1c                     bit     L1CAB+1
++000420 1d20: f0 0c                        beq     L1D2E
++000422 1d22: a2 0a                        ldx     #$0a
++000424 1d24: a9 02        L1D24           lda     #$02
++000426 1d26: 20 69 1a                     jsr     L1A69
++000429 1d29: a9 03        L1D29           lda     #$03
++00042b 1d2b: 20 69 1a                     jsr     L1A69
++00042e 1d2e: bd 0e 1c     L1D2E           lda     L1C0E,x
++000431 1d31: 10 f1                        bpl     L1D24
++000433 1d33: e0 02                        cpx     #$02
++000435 1d35: d0 03                        bne     L1D3A
++000437 1d37: 8e 95 16                     stx     $1695
++00043a 1d3a: bd 26 1c     L1D3A           lda     L1C26,x
++00043d 1d3d: 85 fd                        sta     $fd
++00043f 1d3f: 1d 3e 1c                     ora     L1C3E,x
++000442 1d42: f0 e0                        beq     L1D24
++000444 1d44: bd 3e 1c                     lda     L1C3E,x
++000447 1d47: 85 fe                        sta     $fe
++000449 1d49: bd 56 1c                     lda     L1C56,x
++00044c 1d4c: 8d ef ff                     sta     B_REG
++00044f 1d4f: ad 0c 1c                     lda     L1C0C
++000452 1d52: c9 48                        cmp     #$48
++000454 1d54: 90 d3                        bcc     L1D29
++000456 1d56: e9 20                        sbc     #$20
++000458 1d58: 8d 0c 1c                     sta     L1C0C
++00045b 1d5b: 85 ff                        sta     $ff
++00045d 1d5d: aa                           tax
++00045e 1d5e: 20 7a 1d                     jsr     L1D7A
++000461 1d61: 78                           sei
++000462 1d62: a9 00                        lda     #$00
++000464 1d64: 8d d0 ff                     sta     Z_REG
++000467 1d67: 18                           clc
++000468 1d68: ad 0c 1c                     lda     L1C0C
++00046b 1d6b: 69 20                        adc     #$20
++00046d 1d6d: 8d 0c 1c                     sta     L1C0C
++000470 1d70: 85 ff                        sta     $ff
++000472 1d72: a9 02        L1D72           lda     #$02
++000474 1d74: 8d dd ff                     sta     D_IFR
++000477 1d77: 4c 8e 1d                     jmp     L1D8E
+
++00047a 1d7a: 6c fd 00     L1D7A           jmp     ($00fd)
+
++00047d 1d7d: 48                           pha
++00047e 1d7e: ad 92 16                     lda     $1692
++000481 1d81: d0 02                        bne     L1D85
++000483 1d83: 68                           pla
++000484 1d84: 40                           rti
+
++000485 1d85: 68           L1D85           pla
++000486 1d86: ad fd ff                     lda     $fffd
++000489 1d89: a9 21                        lda     #$21
++00048b 1d8b: 20 69 1a                     jsr     L1A69
++00048e 1d8e: 78           L1D8E           sei
++00048f 1d8f: ad df ff                     lda     E_REG
++000492 1d92: 09 40                        ora     #$40
++000494 1d94: 8d df ff                     sta     E_REG
++000497 1d97: 68                           pla
++000498 1d98: 20 b8 1e                     jsr     L1EB8
++00049b 1d9b: 68                           pla
++00049c 1d9c: 8d ef ff                     sta     B_REG
++00049f 1d9f: 68                           pla
++0004a0 1da0: 8d d0 ff                     sta     Z_REG
++0004a3 1da3: 68                           pla
++0004a4 1da4: 09 20        L1DA4           ora     #$20
++0004a6 1da6: 2c 06 19                     bit     L1906
++0004a9 1da9: 30 02                        bmi     L1DAD
++0004ab 1dab: 29 df                        and     #$df
++0004ad 1dad: 8d df ff     L1DAD           sta     E_REG
++0004b0 1db0: ae 6e 1c     L1DB0           ldx     L1C6E
++0004b3 1db3: f0 2b                        beq     L1DE0
++0004b5 1db5: ad df ff                     lda     E_REG
++0004b8 1db8: 48                           pha
++0004b9 1db9: ad d0 ff                     lda     Z_REG
++0004bc 1dbc: 48                           pha
++0004bd 1dbd: ad ef ff                     lda     B_REG
++0004c0 1dc0: 48                           pha
++0004c1 1dc1: 8a                           txa
++0004c2 1dc2: 48                           pha
++0004c3 1dc3: 20 e6 1d                     jsr     L1DE6
++0004c6 1dc6: 78                           sei
++0004c7 1dc7: 68                           pla
++0004c8 1dc8: 68                           pla
++0004c9 1dc9: 8d ef ff                     sta     B_REG
++0004cc 1dcc: 68                           pla
++0004cd 1dcd: 8d d0 ff                     sta     Z_REG
++0004d0 1dd0: 68                           pla
++0004d1 1dd1: 09 20                        ora     #$20
++0004d3 1dd3: 2c 06 19                     bit     L1906
++0004d6 1dd6: 30 02                        bmi     L1DDA
++0004d8 1dd8: 29 df                        and     #$df
++0004da 1dda: 8d df ff     L1DDA           sta     E_REG
++0004dd 1ddd: 4c b0 1d                     jmp     L1DB0
+
++0004e0 1de0: 68           L1DE0           pla
++0004e1 1de1: a8                           tay
++0004e2 1de2: 68                           pla
++0004e3 1de3: aa                           tax
++0004e4 1de4: 68                           pla
++0004e5 1de5: 40                           rti
+
++0004e6 1de6: a2 00        L1DE6           ldx     #$00
++0004e8 1de8: 8e 6e 1c                     stx     L1C6E
++0004eb 1deb: ad 72 1c                     lda     L1C72
++0004ee 1dee: 8d ef ff                     sta     B_REG
++0004f1 1df1: ad 71 1c                     lda     L1C71
++0004f4 1df4: 48                           pha
++0004f5 1df5: ad 70 1c                     lda     L1C70
++0004f8 1df8: 48                           pha
++0004f9 1df9: ac 6f 1c                     ldy     L1C6F
++0004fc 1dfc: 08                           php
++0004fd 1dfd: 68                           pla
++0004fe 1dfe: 29 82                        and     #$82
++000500 1e00: 48                           pha
++000501 1e01: 98                           tya
++000502 1e02: 40                           rti
+
++000503 1e03: 81           L1E03           .dd1    $81
++000504 1e04: 00           L1E04           .dd1    $00
+
++000505 1e05: 08           L1E05           php
++000506 1e06: 20 99 1e                     jsr     L1E99
++000509 1e09: 48                           pha
++00050a 1e0a: 8a                           txa
++00050b 1e0b: 48                           pha
++00050c 1e0c: b1 f9        L1E0C           lda     ($f9),y
++00050e 1e0e: c9 18                        cmp     #$18
++000510 1e10: aa                           tax
++000511 1e11: b0 33                        bcs     L1E46
++000513 1e13: bd 0e 1c                     lda     L1C0E,x
++000516 1e16: 30 2e                        bmi     L1E46
++000518 1e18: ad 03 1e                     lda     L1E03
++00051b 1e1b: 9d 0e 1c                     sta     L1C0E,x
++00051e 1e1e: c8                           iny
++00051f 1e1f: 91 f9                        sta     ($f9),y
++000521 1e21: c8                           iny
++000522 1e22: b1 f9                        lda     ($f9),y
++000524 1e24: 9d 26 1c                     sta     L1C26,x
++000527 1e27: c8                           iny
++000528 1e28: b1 f9                        lda     ($f9),y
++00052a 1e2a: 9d 3e 1c                     sta     L1C3E,x
++00052d 1e2d: c8                           iny
++00052e 1e2e: b1 f9                        lda     ($f9),y
++000530 1e30: 9d 56 1c                     sta     L1C56,x
++000533 1e33: c8                           iny
++000534 1e34: cc 04 1e                     cpy     L1E04
++000537 1e37: 90 d3                        bcc     L1E0C
++000539 1e39: 18                           clc
++00053a 1e3a: ee 03 1e                     inc     L1E03
++00053d 1e3d: 30 0f                        bmi     L1E4E
++00053f 1e3f: a9 81                        lda     #$81
++000541 1e41: 8d 03 1e                     sta     L1E03
++000544 1e44: 30 08                        bmi     L1E4E
+
++000546 1e46: 8a           L1E46           txa
++000547 1e47: 48                           pha
++000548 1e48: 20 84 1e                     jsr     L1E84
++00054b 1e4b: 68                           pla
++00054c 1e4c: aa                           tax
++00054d 1e4d: 38           L1E4D           sec
++00054e 1e4e: 68           L1E4E           pla
++00054f 1e4f: 8d df ff                     sta     E_REG
++000552 1e52: 68                           pla
++000553 1e53: 8d d0 ff                     sta     Z_REG
++000556 1e56: b0 03                        bcs     L1E5B
++000558 1e58: 28                           plp
++000559 1e59: 18                           clc
++00055a 1e5a: 60                           rts
+
++00055b 1e5b: 28           L1E5B           plp
++00055c 1e5c: 38                           sec
++00055d 1e5d: 60                           rts
+
++00055e 1e5e: 08           L1E5E           php
++00055f 1e5f: 20 99 1e                     jsr     L1E99
++000562 1e62: 48                           pha
++000563 1e63: 8a                           txa
++000564 1e64: 48                           pha
++000565 1e65: b1 f9        L1E65           lda     ($f9),y
++000567 1e67: aa                           tax
++000568 1e68: e0 18                        cpx     #$18
++00056a 1e6a: b0 e1                        bcs     L1E4D
++00056c 1e6c: c8                           iny
++00056d 1e6d: bd 0e 1c                     lda     L1C0E,x
++000570 1e70: 10 db                        bpl     L1E4D
++000572 1e72: d1 f9                        cmp     ($f9),y
++000574 1e74: d0 d7                        bne     L1E4D
++000576 1e76: c8                           iny
++000577 1e77: c8                           iny
++000578 1e78: c8                           iny
++000579 1e79: c8                           iny
++00057a 1e7a: cc 04 1e                     cpy     L1E04
++00057d 1e7d: 90 e6                        bcc     L1E65
++00057f 1e7f: 20 84 1e                     jsr     L1E84
++000582 1e82: 90 c9                        bcc     L1E4D
++000584 1e84: ac 04 1e     L1E84           ldy     L1E04
++000587 1e87: 38           L1E87           sec
++000588 1e88: 98                           tya
++000589 1e89: e9 05                        sbc     #$05
++00058b 1e8b: a8                           tay
++00058c 1e8c: 90 0a                        bcc     L1E98
++00058e 1e8e: b1 f9                        lda     ($f9),y
++000590 1e90: aa                           tax
++000591 1e91: a9 00                        lda     #$00
++000593 1e93: 9d 0e 1c                     sta     L1C0E,x
++000596 1e96: f0 ef                        beq     L1E87
+
++000598 1e98: 60           L1E98           rts
+
++000599 1e99: 78           L1E99           sei
++00059a 1e9a: 8d 04 1e                     sta     L1E04
++00059d 1e9d: ad d0 ff                     lda     Z_REG
++0005a0 1ea0: 48                           pha
++0005a1 1ea1: a9 00                        lda     #$00
++0005a3 1ea3: 8d d0 ff                     sta     Z_REG
++0005a6 1ea6: 86 f9                        stx     $f9
++0005a8 1ea8: 84 fa                        sty     $fa
++0005aa 1eaa: a8                           tay
++0005ab 1eab: ad df ff                     lda     E_REG
++0005ae 1eae: aa                           tax
++0005af 1eaf: 09 04                        ora     #$04
++0005b1 1eb1: 29 f7                        and     #$f7
++0005b3 1eb3: 8d df ff                     sta     E_REG
++0005b6 1eb6: 68                           pla
++0005b7 1eb7: 60                           rts
+
++0005b8 1eb8: c9 05        L1EB8           cmp     #$05
++0005ba 1eba: b0 14                        bcs     L1ED0
++0005bc 1ebc: 08                           php
++0005bd 1ebd: 78                           sei
++0005be 1ebe: 8d 0d 1c                     sta     L1C0D
++0005c1 1ec1: 09 c0                        ora     #$c0
++0005c3 1ec3: 8d ce 1e                     sta     L1ECC+2
++0005c6 1ec6: 2c ff cf                     bit     $cfff
++0005c9 1ec9: 2c 20 c0                     bit     $c020
++0005cc 1ecc: 2c 00 c0     L1ECC           bit     KBD
++0005cf 1ecf: 28                           plp
++0005d0 1ed0: 60           L1ED0           rts
+
++0005d1 1ed1: 08           L1ED1           php
++0005d2 1ed2: 78                           sei
++0005d3 1ed3: ad 6e 1c                     lda     L1C6E
++0005d6 1ed6: d0 10                        bne     L1EE8
++0005d8 1ed8: 86 fb                        stx     $fb
++0005da 1eda: 84 fc                        sty     $fc
++0005dc 1edc: a0 05                        ldy     #$05
++0005de 1ede: b1 fb        L1EDE           lda     ($fb),y
++0005e0 1ee0: 99 6e 1c                     sta     L1C6E,y
++0005e3 1ee3: 88                           dey
++0005e4 1ee4: 10 f8                        bpl     L1EDE
++0005e6 1ee6: 28                           plp
++0005e7 1ee7: 60                           rts
+
++0005e8 1ee8: a9 05        L1EE8           lda     #$05
++0005ea 1eea: 20 69 1a                     jsr     L1A69
++0005ed 1eed: 40                           rti
+
++0005ee 1eee: 00                           .dd1    $00
++0005ef 1eef: 05                           .dd1    $05
++0005f0 1ef0: 1f                           .dd1    $1f
++0005f1 1ef1: 00 00 00 00+                 .fill   9,$00
++0005fa 1efa: 01                           .dd1    $01
++0005fb 1efb: 00                           .dd1    $00
++0005fc 1efc: bb                           .dd1    $bb
++0005fd 1efd: 02                           .dd1    $02
++0005fe 1efe: e5                           .dd1    $e5
++0005ff 1eff: d5                           .dd1    $d5
++000600 1f00: 08                           .dd1    $08
++000601 1f01: 2e 43 4f 4e+                 .str    “.CONSOLE”
++000609 1f09: 00 00 00 00+                 .fill   7,$00
++000610 1f10: 08                           .dd1    $08
++000611 1f11: 2e 50 52 49+                 .str    “.PRINTER”
++000619 1f19: 00 00 00 00+                 .fill   7,$00
++000620 1f20: 0a 2e 53 49+                 .str    $0a,“.SILENTYPE”
++00062b 1f2b: 00 00 00 00+                 .fill   133,$00
++0006b0 1fb0: 80 80 80 80+                 .fill   16,$80
++0006c0 1fc0: 81 81 81 81+                 .fill   16,$81
++0006d0 1fd0: 82 82 82 82+                 .fill   16,$82
++0006e0 1fe0: 83 83 83 83+                 .fill   16,$83
++0006f0 1ff0: 00                           .dd1    $00
++0006f1 1ff1: 01 01 01 01+                 .fill   11,$01
++0006fc 1ffc: 02                           .dd1    $02
++0006fd 1ffd: 03                           .dd1    $03
++0006fe 1ffe: 02                           .dd1    $02
++0006ff 1fff: 03                           .dd1    $03

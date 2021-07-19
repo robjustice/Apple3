@@ -1,0 +1,46 @@
+boot block0 loaded to $A000
+loads 24 blocks from $a200 on
+12k - $3000
+$A200 - $D1FF
+
+moves floppy driver to 9a00 - 9fff
+
+and some dispatch area to $1900-$1fff
+
+
+a200-a6ff
+a700-adff -> 1900-1fff  ; dispatch api - dummy sos + extras
+ae00-b3ff -> 9a00-9fff  : disk driver and extras - bank1
+b400-ceff -> e400-feff  : cpm?
+cf00-cfff -> 1600-16ff  : ??
+
+
+slot 1 c090-9f
+slot 2 c0a0-af
+slot 3 c0b0-bf
+slot 4 c0c0-cf
+
+Address Map
+a3    z80
+2000  0000
+3000  1000
+4000  2000
+5000  3000
+6000  4000
+7000  5000
+8000  6000
+9000  7000
+A000  8000
+B000  9000
+C000  A000
+D000  B000
+E000  C000
+F000  D000 --  df -> 16
+1000  E000 --  e4 -> ff, e5 -> 14, e6 -> 15
+0000  F000
+
+
+
+patch disk image for booting of hd
+00df 79 f4 -> 00 02  block0 - offset df
+7b4 c5 9c -> 16 02   block3 - offset 1b4
