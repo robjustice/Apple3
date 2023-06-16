@@ -104,7 +104,7 @@ Signature:  .byte $FF, $20, $FF, $00    ; Disk card signature for disk controlle
 
 DInit:      lda     EReg                ; save current environment so we can
             sta     EnvSave             ;  restore on exit
-            ora     #$40                ; enable Cxxx I/O
+            ora     #$c0                ; enable Cxxx I/O and set 1MHz, grappler+ softsp needs this
             sta     EReg
             lda     #ScanStart          ; load starting scan slot
             ora     #$C0                ; Form a $Cs00 address, where s = slot #
