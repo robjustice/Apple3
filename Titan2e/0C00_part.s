@@ -253,11 +253,13 @@ L0E00:      lda     #$67          ;(1.I.S.R:W.P.R.R)
             sta     ENV_REG
             lda     #$00
             sta     BNK_REG
-            sta     $c0a1         ;enable 3plus2e card
+            sta     $c0a1         ;enable something on 3plus2e card?
             sta     SETTEXTGR     ;set text mode for //e(sets color text for A3)
             sta     CLRPAGE2
             sta     CLR80VID      ;80 column display off
             sta     KBDSTRB
+
+;detect if we have a clock chip?
             ldx     #$11
             ldy     #$14
 @L0E24:     lda     #$00
@@ -270,7 +272,9 @@ L0E00:      lda     #$67          ;(1.I.S.R:W.P.R.R)
             bne     @L0E24
             lda     #$60
             sta     $c700
-@L0E3C:     lda     #$03
+
+;check /// memory size is 256k (or greater)
+@L0E3C:     lda     #$03          ;banks 0-2 for 128k, 0-7 for 256k
             sta     BNK_REG
             lda     $2000
             eor     #$55
@@ -285,9 +289,10 @@ L0E00:      lda     #$67          ;(1.I.S.R:W.P.R.R)
             sta     $c7aa
             lda     #$00
             sta     $c7ab
-@L0E5F:     lda     #$00
+
+@L0E5F:     lda     #$00       ;set bank=0
             sta     BNK_REG
-            lda     #$18
+            lda     #$18       ;set zp=$18
             sta     Z_REG
             jsr     L1F29
             jsr     @L0F05     ;display start menu

@@ -8,13 +8,13 @@
 ;
 ; Interpreter code layout
 ; 2000 - 20FF  - memory move and card init routines
-; 2100 - 21FF  - Slot 5 rom image
-; 2200 - 22FF  - Slot 6 rom image
-; 2300 - 23FF  - Slot 7 rom image
+; 2100 - 21FF  - Slot 5 rom image, no physical slot on the ///, ram here
+; 2200 - 22FF  - Slot 6 rom image, no physical slot on the ///, ram here
+; 2300 - 23FF  - Slot 7 rom image, no physical slot on the ///, ram here
 ; 2400 - 53FF  - TWOE rom image (basic, etc)
 ; 5400 - 57FF  - font data 
-; 5800 - 63FF  - 
-; 6400 - 6BFF  - alternate Cxxx rom image
+; 5800 - 63FF  - ???
+; 6400 - 6BFF  - alternate Cxxx rom image, this is the //e alternate Cxxx firmware
 ; 6C00 - 83FF  -
 ; 8400 - 97FF  - actual emulation init code and menus
 ;
@@ -66,8 +66,18 @@ L1401       =       $1401
 L1403       =       $1403
 L1800       =       $1800
 
-KBDFLG      =       $c008
 DRV1EN      =       $c08b
+
+; Apple //e equates
+SETSLOTCXROM =      $C006      ;use peripheral ROM ($C100-CFFF)
+SETINTCXROM  =      $C007      ;use internal ROM ($C100-CFFF)
+SETSTDZP     =      $C008      ;use main stack and zero page
+SETALTZP     =      $C009      ;use aux stack and zero page
+
+LCBANK2_RW   =      $C080      ;RW read RAM bank 2, write off
+ROMIN        =      $C081      ;RWx2 read ROM, write RAM bank 2
+ROMIN_RO     =      $C082      ;RW read ROM, no write
+LCBANK2      =      $C083      ;RWx2 read/write RAM bank 2
 
 
             .segment "RAM"
@@ -137,11 +147,11 @@ CODEST:     lda     #$18       ;set zero page to $18
 @LA07F:     lda     ENV_REG
             pha                ;save env_reg
             lda     #$fc       ;(1.I.S.R:W_P.R.R)
-            sta     ENV_REG
+            sta     ENV_REG    ; 1Mhz,Cxxx I/O enab,video on, NMI/Reset enab,write prot ram off?,prim stack,no rom
             lda     Z_REG
             ldx     #$18
             stx     Z_REG
-            pha                ;save zeropage reg
+            pha                ;save original zeropage reg
             lda     #$8f       ;enable special 8f ext addr
             sta     $1401
             lda     #$00       ;set 00 to $D000
@@ -150,35 +160,35 @@ CODEST:     lda     #$18       ;set zero page to $18
             sta     $01
             ldy     #$00
             ldx     #$df
-            lda     $c300      ;enable 3plus2 card (its always in slot3)
-            lda     $c083
+            lda     $c300        ;enable 3plus2e card (its always in slot3)
+            lda     LCBANK2
             lda     #$00
-@LA0AA:     sta     KBDFLG
-            sta     $c006
-            sta     $c083
+@LA0AA:     sta     SETSTDZP     ;iie - set standard zero page
+            sta     SETSLOTCXROM ;iie - 
+            sta     LCBANK2      ;enable language card rw bank2
+            sta     ($00),y      
+            sta     SETALTZP
             sta     ($00),y
-            sta     $c009
+            sta     SETINTCXROM
             sta     ($00),y
-            sta     KBDFLG-1
+            sta     SETSTDZP
             sta     ($00),y
-            sta     KBDFLG
-            sta     ($00),y
-            sta     $c006
+            sta     SETSLOTCXROM  ;iie - reset intcxrom
             cpx     $01
             bcc     @LA0DF
             sta     DRV1EN
             sta     ($00),y
-            sta     $c009
+            sta     SETALTZP      ;iie - set altzp
             sta     ($00),y
-            sta     KBDFLG-1
+            sta     SETINTCXROM
             sta     ($00),y
-            sta     KBDFLG
+            sta     SETSTDZP
             sta     ($00),y
 @LA0DF:     iny
             bne     @LA0AA
             inc     $01
             bne     @LA0AA
-            sta     $c082
+            sta     ROMIN_RO
             pla                ;restore zero page
             sta     Z_REG
             pla                ;restore env reg
@@ -205,6 +215,8 @@ CC1:        lda     (SRCPTR),Y
 ;emulation rom images
 
 ; copied to c500
+; ram on a /// as we have no physical slot5
+; This looks like Titan //e specific code
 SLOT5ROM:   .byte   $00,$20,$00,$00,$00,$03,$AC,$7D,$04,$B9,$83,$C0,$B9,$83,$C0,$60
             .byte   $20,$D3,$C5,$A5,$44,$85,$3E,$A5,$45,$85,$3F,$E6,$3F,$A0,$00,$60
             .byte   $AE,$AA,$C7,$AC,$AB,$C7,$A9,$00,$18,$60,$A5,$42,$F0,$F2,$C9,$03
@@ -223,6 +235,8 @@ SLOT5ROM:   .byte   $00,$20,$00,$00,$00,$03,$AC,$7D,$04,$B9,$83,$C0,$B9,$83,$C0,
             .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$4F,$2A
 
 ; copied to c600
+; ram on a /// as we have no physical slot6
+; This is the standard DiskII card firmware
 SLOT6ROM:   .byte   $A2,$20,$A0,$00,$A2,$03,$86,$3C,$8A,$0A,$24,$3C,$F0,$10,$05,$3C
             .byte   $49,$FF,$29,$7E,$B0,$08,$4A,$D0,$FB,$98,$9D,$56,$03,$C8,$E8,$10
             .byte   $E5,$20,$58,$FF,$BA,$BD,$00,$01,$0A,$0A,$0A,$0A,$85,$2B,$AA,$BD
@@ -241,6 +255,8 @@ SLOT6ROM:   .byte   $A2,$20,$A0,$00,$A2,$03,$86,$3C,$8A,$0A,$24,$3C,$F0,$10,$05,
             .byte   $3D,$CD,$00,$08,$A6,$2B,$90,$DB,$4C,$01,$08,$00,$00,$00,$00,$00
 
 ; copied to c700
+; ram on a /// as we have no physical slot7
+; This looks like Titan //e specific code
 SLOT7ROM:   .byte   $08,$EA,$28,$2C,$58,$FF,$70,$03,$60,$EA,$EA,$08,$78,$A0,$00,$AD
             .byte   $11,$C0,$10,$02,$A0,$08,$8C,$7D,$04,$AC,$A0,$C7,$99,$A9,$C0,$AD
             .byte   $82,$C0,$A9,$11,$8D,$7F,$04,$A0,$14,$CE,$7F,$04,$F0,$41,$A2,$10
@@ -259,6 +275,7 @@ SLOT7ROM:   .byte   $08,$EA,$28,$2C,$58,$FF,$70,$03,$60,$EA,$EA,$08,$78,$A0,$00,
             .byte   $93,$FE,$4C,$89,$FE,$20,$AA,$C5,$8D,$A1,$C0,$20,$53,$94,$10,$D4
 
 ; copied to d000 - ffff
+; This is the //e Applesoft and F8 rom image
 TWOEROM:    .byte   $6F,$D8,$65,$D7,$F8,$DC,$94,$D9,$B1,$DB,$30,$F3,$D8,$DF,$E1,$DB
             .byte   $8F,$F3,$98,$F3,$E4,$F1,$DD,$F1,$D4,$F1,$24,$F2,$31,$F2,$40,$F2
             .byte   $D7,$F3,$E1,$F3,$E8,$F6,$FD,$F6,$68,$F7,$6E,$F7,$E6,$F7,$57,$FC
@@ -1065,6 +1082,7 @@ CODE9000:
             .byte   $3E,$20,$10,$08,$04,$02,$3E,$00,$3E,$06,$06,$06,$06,$06,$3E,$00
             .byte   $00,$02,$04,$08,$10,$20,$00,$00,$3E,$30,$30,$30,$30,$30,$3E,$00
             .byte   $00,$00,$08,$14,$22,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$7F
+
             .byte   $00,$00,$00,$00,$00,$00,$00,$00,$08,$08,$08,$08,$08,$00,$08,$00
             .byte   $14,$14,$14,$00,$00,$00,$00,$00,$14,$14,$3E,$14,$3E,$14,$14,$00
             .byte   $08,$3C,$0A,$1C,$28,$1E,$08,$00,$06,$26,$10,$08,$04,$32,$30,$00
@@ -1081,6 +1099,7 @@ CODE9000:
             .byte   $00,$00,$08,$00,$08,$00,$00,$00,$00,$00,$08,$00,$08,$08,$04,$00
             .byte   $10,$08,$04,$02,$04,$08,$10,$00,$00,$00,$3E,$00,$3E,$00,$00,$00
             .byte   $04,$08,$10,$20,$10,$08,$04,$00,$1C,$22,$10,$08,$08,$00,$08,$00
+
             .byte   $1C,$22,$2A,$3A,$1A,$02,$3C,$00,$08,$14,$22,$22,$3E,$22,$22,$00
             .byte   $1E,$22,$22,$1E,$22,$22,$1E,$00,$1C,$22,$02,$02,$02,$22,$1C,$00
             .byte   $1E,$22,$22,$22,$22,$22,$1E,$00,$3E,$02,$02,$1E,$02,$02,$3E,$00
@@ -1097,6 +1116,7 @@ CODE9000:
             .byte   $3E,$20,$10,$08,$04,$02,$3E,$00,$3E,$06,$06,$06,$06,$06,$3E,$00
             .byte   $00,$02,$04,$08,$10,$20,$00,$00,$3E,$30,$30,$30,$30,$30,$3E,$00
             .byte   $00,$00,$08,$14,$22,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$7F
+
             .byte   $04,$08,$10,$00,$00,$00,$00,$00,$00,$00,$1C,$20,$3C,$22,$3C,$00
             .byte   $02,$02,$1E,$22,$22,$22,$1E,$00,$00,$00,$3C,$02,$02,$02,$3C,$00
             .byte   $20,$20,$3C,$22,$22,$22,$3C,$00,$00,$00,$1C,$22,$3E,$02,$3C,$00
@@ -1308,7 +1328,7 @@ CODE9000:
             .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
             .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-;loads into $a000, seems mapped to alternate c000 page in //e emulation
+;loads into $A000, seems mapped to alternate Cxxx page in //e emulation
 ;
             .byte   $85,$46,$86,$47,$AD,$82,$C0,$20,$D3,$C5,$A5,$46,$CD,$AA,$C7,$A5
             .byte   $47,$85,$3F,$ED,$AB,$C7,$B0,$28,$A5,$46,$0A,$26,$3F,$48,$0A,$26
@@ -1377,7 +1397,7 @@ CODE9000:
             .byte   $C0,$8D,$05,$C0,$B0,$06,$8D,$02,$C0,$8D,$04,$C0,$68,$8D,$EE,$03
             .byte   $68,$8D,$ED,$03,$68,$70,$05,$8D,$08,$C0,$50,$03,$8D,$09,$C0,$6C
             .byte   $ED,$03,$00,$00,$8D,$81,$C0,$4C,$7A,$FC,$2C,$15,$C0,$8D,$07,$C0
-;
+;c400
             .byte   $4C,$00,$C6,$01,$18,$48,$48,$48,$8A,$BA,$E8,$E8,$E8,$E8,$48,$98
             .byte   $48,$BD,$00,$01,$29,$10,$A8,$AD,$18,$C0,$2D,$1C,$C0,$29,$80,$F0
             .byte   $05,$A9,$20,$8D,$54,$C0,$2A,$2C,$13,$C0,$10,$05,$8D,$02,$C0,$09
@@ -1394,7 +1414,7 @@ CODE9000:
             .byte   $D0,$13,$20,$13,$FF,$DD,$BA,$F9,$F0,$0D,$BD,$BA,$F9,$F0,$07,$C9
             .byte   $A4,$F0,$03,$A4,$34,$18,$88,$26,$44,$E0,$03,$D0,$0D,$20,$A7,$FF
             .byte   $A5,$3F,$F0,$01,$E8,$86,$35,$A2,$03,$88,$86,$3D,$CA,$10,$C9,$60
-;
+;c500
             .byte   $4C,$14,$C5,$4C,$26,$C5,$8D,$A9,$C0,$A9,$02,$8D,$DE,$FF,$20,$3E
             .byte   $C5,$4C,$74,$FC,$78,$8D,$A9,$C0,$A9,$82,$8D,$DD,$FF,$8D,$DE,$FF
             .byte   $20,$3E,$C5,$4C,$7C,$C6,$8D,$A9,$C0,$A9,$23,$8D,$DC,$FF,$A9,$7F
@@ -1411,7 +1431,7 @@ CODE9000:
             .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
             .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
             .byte   $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
-;
+;c600
             .byte   $D8,$38,$30,$01,$18,$48,$48,$48,$8A,$BA,$E8,$E8,$E8,$E8,$48,$98
             .byte   $48,$BD,$00,$01,$29,$10,$A8,$AD,$18,$C0,$2D,$1C,$C0,$29,$80,$F0
             .byte   $05,$A9,$20,$8D,$54,$C0,$2A,$2C,$13,$C0,$10,$05,$8D,$02,$C0,$09
@@ -1445,7 +1465,8 @@ CODE9000:
             .byte   $A0,$0E,$99,$00,$C0,$88,$88,$10,$F9,$20,$84,$FE,$20,$2F,$FB,$20
             .byte   $93,$FE,$4C,$89,$FE,$FF,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-; loads into A800
+;loads into A800
+;C800 in IIe alternate Cxxx bank
             .byte   $4C,$B0,$C9,$20,$F4,$CE,$20,$2A,$C8,$20,$2E,$CD,$A9,$01,$8D,$FB
             .byte   $04,$20,$89,$CA,$D0,$08,$06,$21,$8D,$01,$C0,$8D,$0D,$C0,$8D,$0F
             .byte   $C0,$20,$90,$CC,$AC,$7B,$05,$4C,$7E,$C8,$A9,$07,$85,$36,$A9,$C3
@@ -1462,6 +1483,7 @@ CODE9000:
             .byte   $24,$8D,$7B,$04,$68,$AA,$68,$A8,$AD,$7B,$06,$60,$A4,$24,$AD,$7B
             .byte   $06,$91,$28,$20,$50,$C8,$20,$26,$CE,$20,$3B,$C8,$8D,$7B,$06,$20
             .byte   $26,$CE,$A8,$AD,$FB,$04,$29,$08,$F0,$CB,$C0,$8D,$D0,$08,$AD,$FB
+;C900
             .byte   $04,$29,$F7,$8D,$FB,$04,$C0,$9B,$F0,$11,$C0,$95,$D0,$B7,$AC,$7B
             .byte   $05,$20,$44,$CE,$09,$80,$8D,$7B,$06,$D0,$AA,$20,$B1,$CE,$20,$3B
             .byte   $C8,$20,$C4,$CE,$20,$14,$CE,$29,$7F,$A0,$10,$D9,$7C,$C9,$F0,$05
@@ -1478,6 +1500,7 @@ CODE9000:
             .byte   $20,$90,$CC,$4C,$1F,$CA,$20,$D4,$CE,$20,$3B,$C8,$29,$7F,$8D,$7B
             .byte   $06,$A2,$00,$AD,$FB,$04,$29,$02,$F0,$02,$A2,$C3,$AD,$7B,$06,$60
             .byte   $29,$7F,$AA,$20,$D4,$CE,$A9,$08,$2C,$FB,$04,$D0,$32,$8A,$2C,$2E
+;CA00
             .byte   $CA,$F0,$50,$AC,$7B,$05,$24,$32,$10,$02,$09,$80,$20,$70,$CE,$C8
             .byte   $8C,$7B,$05,$C4,$21,$90,$08,$A9,$00,$8D,$7B,$05,$20,$D8,$CB,$A5
             .byte   $28,$8D,$7B,$07,$A5,$29,$8D,$FB,$07,$20,$1F,$CE,$A2,$00,$60,$20
@@ -1494,6 +1517,7 @@ CODE9000:
             .byte   $28,$60,$2C,$06,$CB,$50,$B8,$8D,$7B,$07,$48,$98,$48,$AC,$7B,$07
             .byte   $C0,$05,$90,$13,$B9,$B4,$CB,$F0,$0E,$50,$12,$30,$10,$8D,$7B,$07
             .byte   $AD,$FB,$04,$29,$28,$F0,$03,$38,$B0,$09,$AD,$7B,$07,$09,$80,$20
+;CB00
             .byte   $07,$CB,$18,$68,$A8,$68,$60,$48,$B9,$99,$CB,$48,$60,$AD,$FB,$04
             .byte   $10,$05,$29,$EF,$8D,$FB,$04,$60,$AD,$FB,$04,$10,$FA,$09,$10,$D0
             .byte   $F3,$A9,$40,$20,$34,$CB,$A0,$C0,$A9,$0C,$20,$34,$CB,$AD,$30,$C0
@@ -1510,6 +1534,7 @@ CODE9000:
             .byte   $4B,$4C,$00,$4B,$A0,$00,$F0,$15,$E6,$25,$A5,$25,$8D,$FB,$05,$C5
             .byte   $23,$B0,$03,$4C,$03,$CE,$CE,$FB,$05,$C6,$25,$A0,$01,$8A,$48,$8C
             .byte   $7B,$07,$A5,$21,$48,$2C,$1F,$C0,$10,$1C,$8D,$01,$C0,$4A,$AA,$A5
+;CC00
             .byte   $20,$4A,$B8,$90,$03,$2C,$06,$CB,$2A,$45,$21,$4A,$70,$03,$B0,$01
             .byte   $CA,$86,$21,$AD,$1F,$C0,$08,$A6,$22,$98,$D0,$03,$A6,$23,$CA,$8A
             .byte   $20,$03,$CE,$A5,$28,$85,$2A,$A5,$29,$85,$2B,$AD,$7B,$07,$F0,$32
@@ -1526,6 +1551,7 @@ CODE9000:
             .byte   $01,$C8,$68,$B0,$0B,$2C,$55,$C0,$91,$28,$2C,$54,$C0,$E8,$F0,$06
             .byte   $91,$28,$C8,$E8,$D0,$EF,$A6,$2A,$38,$60,$AD,$FB,$04,$30,$4D,$20
             .byte   $31,$CD,$2C,$1F,$C0,$10,$12,$20,$91,$CD,$90,$0D,$20,$89,$CA,$D0
+;CD00
             .byte   $3B,$2C,$1F,$C0,$30,$03,$20,$C4,$CD,$AD,$7B,$05,$18,$65,$20,$2C
             .byte   $1F,$C0,$30,$06,$C9,$28,$90,$02,$A9,$27,$8D,$7B,$05,$85,$24,$A5
             .byte   $25,$20,$BA,$CA,$2C,$1F,$C0,$10,$05,$20,$71,$CD,$F0,$03,$20,$6D
@@ -1542,6 +1568,7 @@ CODE9000:
             .byte   $C0,$B1,$28,$84,$2A,$48,$98,$4A,$B0,$03,$8D,$55,$C0,$A8,$68,$91
             .byte   $28,$8D,$54,$C0,$A4,$2A,$C8,$C0,$28,$90,$E6,$20,$B0,$CC,$CA,$30
             .byte   $04,$E4,$22,$B0,$D3,$8D,$0D,$C0,$20,$FE,$CD,$68,$AA,$60,$A5,$25
+;CE00
             .byte   $8D,$FB,$05,$20,$BA,$CA,$A5,$20,$2C,$1F,$C0,$10,$01,$4A,$18,$65
             .byte   $28,$85,$28,$60,$C9,$E1,$90,$06,$C9,$FB,$B0,$02,$29,$DF,$60,$AD
             .byte   $FB,$04,$29,$10,$D0,$11,$48,$98,$48,$AC,$7B,$05,$20,$44,$CE,$49
@@ -1558,6 +1585,7 @@ CODE9000:
             .byte   $68,$A8,$68,$60,$20,$71,$CD,$A9,$FF,$85,$32,$AD,$FB,$04,$29,$04
             .byte   $F0,$02,$46,$32,$AD,$7B,$07,$85,$28,$AD,$FB,$07,$85,$29,$AD,$FB
             .byte   $05,$85,$25,$60,$4C,$8C,$CA,$10,$3D,$A9,$06,$CD,$B3,$FB,$F0,$36
+;CF00
             .byte   $A2,$03,$2C,$11,$C0,$30,$02,$A2,$0B,$8D,$B3,$FB,$2C,$80,$C0,$AD
             .byte   $B3,$FB,$C9,$06,$F0,$01,$E8,$2C,$81,$C0,$2C,$81,$C0,$A0,$00,$A9
             .byte   $F8,$85,$37,$84,$36,$B1,$36,$91,$36,$C8,$D0,$F9,$E6,$37,$D0,$F5
